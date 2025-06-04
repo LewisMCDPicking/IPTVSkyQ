@@ -6,12 +6,12 @@ let currentMainUrl = '';
 
 function channelClicked(url) {
   if (currentPreviewUrl !== url) {
-    // First press: just preview
+    // First press: show in preview
     preview.src = url;
     preview.play();
     currentPreviewUrl = url;
   } else {
-    // Second press: play on main player
+    // Second press: move to full player
     video.src = url;
     video.play();
     preview.src = '';

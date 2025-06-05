@@ -1,68 +1,42 @@
-// ====== Your IPTV Xtream URL here - Replace with your actual M3U URL =======
-const M3U_URL = 'http://mv223.uk:8880/get.php?username=uc6Kcf7Y&password=fGJajuyUX2&type=m3u_plus&output=mpegts';
+// Replace these with your Xtream API info
+const XTREAM_API_URL = 'http://mv223.uk:8880/player_api.php?username=uc6Kcf7Y&password=fGJajuyUX2&action=get_live_streams';
 
 // Replace with your EPG XMLTV URL if you have one (must allow CORS or proxy)
 const EPG_URL = 'https://iptv-org.github.io/epg/guides/uk.xml';
 
-// Global variables
 let channels = [];
 let epgData = {};
 let selectedChannelIndex = 0;
 
-// Elements
 const videoPlayer = document.getElementById('videoPlayer');
 const channelListEl = document.getElementById('channelList');
 const channelNameEl = document.getElementById('channelName');
 const epgGridEl = document.getElementById('epgGrid');
 
-// Load M3U playlist
-async function loadM3U(url) {
+// Load Xtream API JSON and parse channels
+async function loadXtream() {
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to load M3U playlist: ${res.status}`);
-    const text = await res.text();
-    parseM3U(text);
+    const res = await fetch(XTREAM_API_URL);
+    if (!res.ok) throw new Error(`Failed to load Xtream API: ${res.status}`);
+    const data = await res.json();
+
+    if (!data || !data.streams) throw new Error('Invalid Xtream API response');
+
+    channels = data.streams.map(stream => ({
+      id: stream.stream_id,
+      name: stream.name || stream.stream_name || 'Unknown',
+      logo: stream.stream_icon || null,
+      url: stream.stream_url
+    }));
+
     buildChannelList();
     selectChannel(0);
   } catch (err) {
     console.error(err);
-    alert('Error loading M3U playlist. Check the URL or network.');
+    alert('Error loading Xtream API. Check the URL or network.');
   }
 }
 
-// Parse M3U playlist text into channels array
-function parseM3U(data) {
-  channels = [];
-  const lines = data.split('\n').map(line => line.trim());
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith('#EXTINF')) {
-      // Extract info from EXTINF line
-      const infoLine = lines[i];
-      const urlLine = lines[i + 1];
-      if (!urlLine || urlLine.startsWith('#')) continue;
-
-      // Example #EXTINF:-1 tvg-id="ChannelID" tvg-name="ChannelName" tvg-logo="LogoURL" group-title="Group",Channel Name
-      const tvgIdMatch = infoLine.match(/tvg-id="([^"]+)"/);
-      const tvgNameMatch = infoLine.match(/tvg-name="([^"]+)"/);
-      const tvgLogoMatch = infoLine.match(/tvg-logo="([^"]+)"/);
-      const groupMatch = infoLine.match(/group-title="([^"]+)"/);
-      const channelNameMatch = infoLine.match(/,(.*)$/);
-
-      channels.push({
-        id: tvgIdMatch ? tvgIdMatch[1] : null,
-        name: (tvgNameMatch ? tvgNameMatch[1] : (channelNameMatch ? channelNameMatch[1] : 'Unknown')),
-        logo: tvgLogoMatch ? tvgLogoMatch[1] : null,
-        group: groupMatch ? groupMatch[1] : 'Others',
-        url: urlLine
-      });
-
-      i++; // Skip URL line since processed
-    }
-  }
-}
-
-// Build the horizontal channel list UI
 function buildChannelList() {
   channelListEl.innerHTML = '';
   channels.forEach((ch, idx) => {
@@ -71,7 +45,6 @@ function buildChannelList() {
     chDiv.title = ch.name;
     chDiv.dataset.index = idx;
 
-    // Add logo or placeholder
     if (ch.logo) {
       const img = document.createElement('img');
       img.src = ch.logo;
@@ -90,27 +63,24 @@ function buildChannelList() {
   });
 }
 
-// Select channel by index
 function selectChannel(index) {
   if (index < 0 || index >= channels.length) return;
   selectedChannelIndex = index;
 
-  // Update selected UI
   document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('selected'));
   const selectedEl = channelListEl.querySelector(`[data-index="${index}"]`);
   if (selectedEl) selectedEl.classList.add('selected');
 
-  // Update video and channel name
   const ch = channels[index];
   channelNameEl.textContent = ch.name;
   videoPlayer.src = ch.url;
   videoPlayer.play();
 
-  // Load EPG for selected channel
   displayEPGForChannel(ch.id);
 }
 
-// Load and parse EPG XMLTV
+// The EPG code can stay the same as your existing one, or I can help adjust if you want.
+
 async function loadEPG(url) {
   try {
     const res = await fetch(url);
@@ -122,7 +92,6 @@ async function loadEPG(url) {
   }
 }
 
-// Parse EPG XML into a dictionary keyed by channel id
 function parseEPG(xmlText) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlText, "application/xml");
@@ -131,38 +100,28 @@ function parseEPG(xmlText) {
 
   epgData = {};
 
-  // Map channel id to display name if needed
   channelElems.forEach(ch => {
     const id = ch.getAttribute('id');
-    // can store channel names here if needed
     epgData[id] = [];
   });
 
-  // Parse programmes
   programmeElems.forEach(prg => {
     const chId = prg.getAttribute('channel');
-    if (!epgData[chId]) return; // Skip unknown channels
+    if (!epgData[chId]) return;
     const title = prg.querySelector('title')?.textContent || 'No Title';
-    const start = prg.getAttribute('start'); // format: YYYYMMDDHHMMSS + timezone
+    const start = prg.getAttribute('start');
     const stop = prg.getAttribute('stop');
 
-    epgData[chId].push({
-      title,
-      start,
-      stop,
-    });
+    epgData[chId].push({ title, start, stop });
   });
 
-  // Sort programs by start time
   for (const chId in epgData) {
     epgData[chId].sort((a, b) => a.start.localeCompare(b.start));
   }
 
-  // Display EPG for selected channel on load
   displayEPGForChannel(channels[selectedChannelIndex]?.id);
 }
 
-// Display EPG items for a given channel id
 function displayEPGForChannel(channelId) {
   epgGridEl.innerHTML = '';
   if (!channelId || !epgData[channelId]) {
@@ -176,12 +135,10 @@ function displayEPGForChannel(channelId) {
     const start = parseEPGDate(prg.start);
     const stop = parseEPGDate(prg.stop);
 
-    // Create EPG item div
     const epgItem = document.createElement('div');
     epgItem.className = 'epg-item';
     epgItem.textContent = prg.title;
 
-    // Highlight current program
     if (now >= start && now <= stop) {
       epgItem.classList.add('current');
     }
@@ -190,10 +147,7 @@ function displayEPGForChannel(channelId) {
   });
 }
 
-// Helper to parse XMLTV date string to Date object
 function parseEPGDate(dateStr) {
-  // Format example: 20250605140000 +0000
-  // Parse first 14 digits YYYYMMDDHHMMSS
   const year = +dateStr.substr(0, 4);
   const month = +dateStr.substr(4, 2) - 1;
   const day = +dateStr.substr(6, 2);
@@ -203,9 +157,8 @@ function parseEPGDate(dateStr) {
   return new Date(Date.UTC(year, month, day, hour, min, sec));
 }
 
-// Init app
 function init() {
-  loadM3U(M3U_URL);
+  loadXtream();
   loadEPG(EPG_URL);
 }
 

@@ -1,110 +1,73 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom right, #002b63, #004080);
+  background: linear-gradient(to bottom, #002b63, #004080);
   color: white;
-}
-
-.app-container {
-  display: flex;
-  height: 100vh;
-}
-
-.sidebar {
-  width: 200px;
-  background-color: #001c3d;
-  padding: 20px;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  margin: 20px 0;
-  cursor: pointer;
-  color: #ccc;
-}
-
-.sidebar .active {
-  color: white;
-  font-weight: bold;
-}
-
-.main-content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
 }
 
 header {
+  background-color: #001f4d;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.app-container {
+  padding: 1rem;
+}
+
+nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.current-time {
-  font-size: 18px;
-}
-
-.preview video {
-  width: 100%;
-  height: 200px;
-  background: black;
-  margin-top: 20px;
-}
-
-.channel-list .channel {
-  padding: 10px;
-  background: #003366;
-  margin-bottom: 10px;
-  cursor: pointer;
-  border: 1px solid #004080;
-}
-
-.channel:hover {
-  background: #0055aa;
-}
-
-.epg-grid {
-  margin-top: 20px;
-}
-
-.epg-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.channel-name {
-  width: 120px;
-  font-weight: bold;
-}
-
-.program {
-  height: 40px;
-  background: #0055aa;
-  margin-left: 5px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  gap: 1rem;
+  margin: 1rem 0;
 }
 
-.vod-list {
-  margin-top: 20px;
+nav button {
+  background: #003366;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-.vod-list li {
-  margin: 10px 0;
+nav button.active {
+  background: #1a75ff;
 }
 
-.hidden {
-  display: none;
+.player-wrapper {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+video {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  border: 3px solid #0059b3;
+  border-radius: 12px;
+}
+
+.channel-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.channel-button {
+  background: #003366;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.channel-button:hover {
+  background: #1a75ff;
 }

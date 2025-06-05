@@ -1,7 +1,5 @@
-// Replace these with your Xtream API info
-const XTREAM_API_URL = 'http://mv223.uk:8880/player_api.php?username=uc6Kcf7Y&password=fGJajuyUX2&action=get_live_streams';
-
-// Replace with your EPG XMLTV URL if you have one (must allow CORS or proxy)
+// ====== Your IPTV Xtream URL - correctly formatted =======
+const M3U_URL = 'http://mv223.uk:8880/get.php?username=uc6Kcf7Y&password=fGJajuyUX2&type=m3u_plus&output=mpegts';
 const EPG_URL = 'https://iptv-org.github.io/epg/guides/uk.xml';
 
 let channels = [];
@@ -13,27 +11,46 @@ const channelListEl = document.getElementById('channelList');
 const channelNameEl = document.getElementById('channelName');
 const epgGridEl = document.getElementById('epgGrid');
 
-// Load Xtream API JSON and parse channels
-async function loadXtream() {
+async function loadM3U(url) {
   try {
-    const res = await fetch(XTREAM_API_URL);
-    if (!res.ok) throw new Error(`Failed to load Xtream API: ${res.status}`);
-    const data = await res.json();
-
-    if (!data || !data.streams) throw new Error('Invalid Xtream API response');
-
-    channels = data.streams.map(stream => ({
-      id: stream.stream_id,
-      name: stream.name || stream.stream_name || 'Unknown',
-      logo: stream.stream_icon || null,
-      url: stream.stream_url
-    }));
-
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to load M3U playlist: ${res.status}`);
+    const text = await res.text();
+    parseM3U(text);
     buildChannelList();
     selectChannel(0);
   } catch (err) {
     console.error(err);
-    alert('Error loading Xtream API. Check the URL or network.');
+    alert('Error loading M3U playlist. Check the URL or network.');
+  }
+}
+
+function parseM3U(data) {
+  channels = [];
+  const lines = data.split('\n').map(line => line.trim());
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('#EXTINF')) {
+      const infoLine = lines[i];
+      const urlLine = lines[i + 1];
+      if (!urlLine || urlLine.startsWith('#')) continue;
+
+      const tvgIdMatch = infoLine.match(/tvg-id="([^"]+)"/);
+      const tvgNameMatch = infoLine.match(/tvg-name="([^"]+)"/);
+      const tvgLogoMatch = infoLine.match(/tvg-logo="([^"]+)"/);
+      const groupMatch = infoLine.match(/group-title="([^"]+)"/);
+      const channelNameMatch = infoLine.match(/,(.*)$/);
+
+      channels.push({
+        id: tvgIdMatch ? tvgIdMatch[1] : null,
+        name: (tvgNameMatch ? tvgNameMatch[1] : (channelNameMatch ? channelNameMatch[1] : 'Unknown')),
+        logo: tvgLogoMatch ? tvgLogoMatch[1] : null,
+        group: groupMatch ? groupMatch[1] : 'Others',
+        url: urlLine
+      });
+
+      i++; // skip next line
+    }
   }
 }
 
@@ -78,8 +95,6 @@ function selectChannel(index) {
 
   displayEPGForChannel(ch.id);
 }
-
-// The EPG code can stay the same as your existing one, or I can help adjust if you want.
 
 async function loadEPG(url) {
   try {
@@ -158,7 +173,7 @@ function parseEPGDate(dateStr) {
 }
 
 function init() {
-  loadXtream();
+  loadM3U(M3U_URL);
   loadEPG(EPG_URL);
 }
 

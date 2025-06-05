@@ -2,87 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sky Q Style IPTV Player</title>
-  <style>
-    #channel-list button {
-      display: block;
-      margin: 5px 0;
-      padding: 8px;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    video {
-      width: 100%;
-      max-height: 360px;
-      margin-top: 20px;
-      background: black;
-    }
-  </style>
+  <title>Sky Q Style IPTV</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
+  <div class="app-container">
+    <header class="skyq-header">
+      <h1>Sky Q IPTV</h1>
+    </header>
 
-  <h1>UK IPTV Channels</h1>
-  <div id="channel-list">Loading channels...</div>
+    <div class="content-container">
+      <nav id="channel-list" class="channel-list" aria-label="Channel List">
+        <!-- Channel buttons inserted here -->
+      </nav>
 
-  <video id="video-player" controls autoplay></video>
+      <section class="preview-section">
+        <div class="video-wrapper">
+          <video id="preview-player" class="preview-player" muted playsinline></video>
+          <div id="loading-egg" class="loading-egg"></div>
+        </div>
+      </section>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const m3uUrl = 'https://iptv-org.github.io/iptv/countries/uk.m3u';
+    <section class="main-player-section">
+      <video id="main-player" class="main-player" controls playsinline></video>
+    </section>
+  </div>
 
-    async function fetchChannels(url) {
-      const res = await fetch(url);
-      const text = await res.text();
-
-      const lines = text.split('\n');
-      const channels = [];
-
-      for(let i = 0; i < lines.length; i++) {
-        if(lines[i].startsWith('#EXTINF')) {
-          const name = lines[i].split(',')[1];
-          const streamUrl = lines[i + 1];
-          channels.push({ name, url: streamUrl });
-        }
-      }
-      return channels;
-    }
-
-    const channelListEl = document.getElementById('channel-list');
-    const videoPlayer = document.getElementById('video-player');
-
-    function playStream(url) {
-      if(Hls.isSupported()) {
-        if(window.hls) {
-          window.hls.destroy();
-        }
-        window.hls = new Hls();
-        window.hls.loadSource(url);
-        window.hls.attachMedia(videoPlayer);
-        window.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoPlayer.play();
-        });
-      } else if(videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-        videoPlayer.src = url;
-        videoPlayer.play();
-      } else {
-        alert('Your browser does not support HLS.');
-      }
-    }
-
-    fetchChannels(m3uUrl).then(channels => {
-      channelListEl.innerHTML = '';
-      channels.forEach(channel => {
-        const btn = document.createElement('button');
-        btn.textContent = channel.name;
-        btn.onclick = () => playStream(channel.url);
-        channelListEl.appendChild(btn);
-      });
-    }).catch(err => {
-      channelListEl.textContent = 'Failed to load channels.';
-      console.error(err);
-    });
-  </script>
-
+  <script src="script.js"></script>
 </body>
 </html>

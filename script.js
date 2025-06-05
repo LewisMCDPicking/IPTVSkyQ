@@ -1,4 +1,4 @@
-const m3uUrl = 'http://iptv-org.github.io/iptv/index.m3u';
+const m3uUrl = 'https://iptv-org.github.io/iptv/countries/uk.m3u';
 
 const videoPlayer = document.getElementById("videoPlayer");
 const channelList = document.getElementById("channelList");
@@ -29,7 +29,7 @@ function parseM3U(data) {
       const groupMatch = lines[i].match(/group-title="(.*?)"/i);
       const url = lines[i + 1];
 
-      if (titleMatch && url) {
+      if (titleMatch && url && url.startsWith('http')) {
         channels.push({
           title: titleMatch[1].trim(),
           group: groupMatch ? groupMatch[1].toLowerCase() : 'other',
@@ -49,7 +49,6 @@ function showChannels(type) {
     series: ['series', 'tv shows', 'drama']
   };
 
-  // fallback: if no matches found, show all channels
   let filtered = channels.filter(ch => {
     return filterGroup[type].some(keyword => ch.group.includes(keyword));
   });
@@ -66,27 +65,11 @@ function showChannels(type) {
   });
 }
 
-let hls;
-
 function playChannel(url) {
-  if (hls) {
-    hls.destroy();
-  }
-
-  if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-    // Some browsers (Safari) support HLS natively
-    videoPlayer.src = url;
-    videoPlayer.play();
-  } else if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(videoPlayer);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      videoPlayer.play();
-    });
-  } else {
-    alert("Your browser does not support this video format.");
-  }
+  videoPlayer.src = url;
+  videoPlayer.play().catch(() => {
+    alert("Failed to play this channel. Try another one.");
+  });
 }
 
 // Handle nav clicks and toggle active button

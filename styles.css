@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #0a0a0e;
+  background-color: #081c2f; /* Deep navy Sky Q background */
   color: #fff;
 }
 
@@ -12,7 +12,7 @@ body {
 
 .sidebar {
   width: 200px;
-  background-color: #1a1a24;
+  background-color: #0f2537; /* Sky Q-style dark blue sidebar */
   padding: 20px;
 }
 
@@ -25,7 +25,7 @@ body {
 .sidebar li {
   padding: 12px 10px;
   margin-bottom: 8px;
-  color: #ccc;
+  color: #bbb;
   cursor: pointer;
   border-radius: 4px;
   transition: background 0.3s, color 0.3s;
@@ -33,7 +33,7 @@ body {
 
 .sidebar li:hover,
 .sidebar li.active {
-  background-color: #00c3ff;
+  background-color: #00c3ff; /* Sky Q cyan accent */
   color: #000;
 }
 
@@ -50,6 +50,7 @@ body {
 .row h2 {
   font-size: 1.5em;
   margin-bottom: 10px;
+  color: #00c3ff; /* Optional: make section titles match Sky Q highlight */
 }
 
 .tiles {
@@ -60,7 +61,7 @@ body {
 .tile {
   width: 160px;
   height: 90px;
-  background-color: #333;
+  background-color: #1c344a; /* Darker tile for depth */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -3,64 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SkyQ IPTV Guide</title>
+  <title>SkyQ IPTV Interface</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <div class="logo">Sky</div>
-      <ul class="menu">
-        <li class="active">TV Guide</li>
-        <li>Recordings</li>
-        <li>Catch Up</li>
-        <li>On Demand</li>
-        <li>Sky Cinema</li>
-        <li>Sky Store</li>
-        <li>Sport</li>
+      <ul>
+        <li class="nav-item active" data-target="guide">TV Guide</li>
+        <li class="nav-item" data-target="live">Live TV</li>
+        <li class="nav-item" data-target="films">Films</li>
+        <li class="nav-item" data-target="series">Series</li>
       </ul>
     </aside>
 
     <main class="main-content">
-      <header class="header">
-        <div class="left">
-          <span class="time">7:58am</span>
-        </div>
-        <div class="right">
-          <span class="channel">BBC One HD</span>
-          <span class="program">Breakfast</span>
-          <span class="meta">07:30 - 09:00 | HD | Subtitles</span>
-        </div>
+      <header>
+        <div class="logo">Sky</div>
+        <div class="current-time" id="time">--:--</div>
       </header>
 
       <section class="preview">
-        <video id="previewVideo" controls autoplay muted></video>
+        <video id="videoPlayer" controls autoplay muted></video>
       </section>
 
-      <section class="epg">
-        <div class="time-bar">
-          <span>7:30am</span><span>8:00am</span><span>8:30am</span>
-        </div>
-
-        <div class="channel-row" onclick="playStream('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">
-          <div class="channel-name">BBC One</div>
-          <div class="programs">
-            <div class="program selected">Breakfast</div>
-            <div class="program">Morning Live</div>
+      <section id="guide" class="content-section">
+        <h2>TV Guide</h2>
+        <div class="epg-grid">
+          <div class="epg-row">
+            <span class="channel-name">BBC One</span>
+            <div class="program" style="width: 40%;">Breakfast</div>
+            <div class="program" style="width: 60%;">Morning Live</div>
+          </div>
+          <div class="epg-row">
+            <span class="channel-name">BBC Two</span>
+            <div class="program" style="width: 50%;">News</div>
+            <div class="program" style="width: 50%;">Gardeners’ World</div>
           </div>
         </div>
+      </section>
 
-        <div class="channel-row" onclick="playStream('https://test-streams.mux.dev/test_001/stream.m3u8')">
-          <div class="channel-name">ITV</div>
-          <div class="programs">
-            <div class="program">Good Morning Britain</div>
-            <div class="program">Lorraine</div>
-          </div>
+      <section id="live" class="content-section hidden">
+        <h2>Live TV</h2>
+        <div class="channel-list">
+          <div class="channel" data-url="http://mv223.uk:8880/live/tPGZaNHC/eEtNUB671N/1.ts">BBC One</div>
+          <div class="channel" data-url="http://mv223.uk:8880/live/tPGZaNHC/eEtNUB671N/2.ts">BBC Two</div>
+          <div class="channel" data-url="http://mv223.uk:8880/live/tPGZaNHC/eEtNUB671N/3.ts">ITV</div>
         </div>
+      </section>
+
+      <section id="films" class="content-section hidden">
+        <h2>Films</h2>
+        <ul class="vod-list">
+          <li>Film 1 - <em>Coming Soon</em></li>
+          <li>Film 2 - <em>Coming Soon</em></li>
+        </ul>
+      </section>
+
+      <section id="series" class="content-section hidden">
+        <h2>Series</h2>
+        <ul class="vod-list">
+          <li>Series 1 - <em>Coming Soon</em></li>
+          <li>Series 2 - <em>Coming Soon</em></li>
+        </ul>
       </section>
     </main>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>

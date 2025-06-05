@@ -3,25 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UK MEDIA IPTV - SkyQ Style</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>IPTV Demo with hls.js</title>
+  <style>
+    body { background: #002b63; color: white; font-family: Arial, sans-serif; margin: 0; padding: 1rem; }
+    #channelList { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
+    button.channel-button {
+      background: #003366;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.channel-button:hover {
+      background: #1a75ff;
+    }
+    video {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      background: black;
+      border-radius: 8px;
+      border: 3px solid #0059b3;
+    }
+  </style>
 </head>
 <body>
 
-<header>UK MEDIA IPTV - SkyQ Style</header>
+<h1>IPTV Demo with hls.js</h1>
 
-<nav>
-  <button id="nav-live" class="active" data-type="live">Live TV</button>
-  <button id="nav-movies" data-type="movies">Movies</button>
-  <button id="nav-series" data-type="series">Series</button>
-</nav>
+<video id="videoPlayer" controls></video>
 
-<div class="player-wrapper">
-  <video id="videoPlayer" controls autoplay></video>
-</div>
+<div id="channelList">Loading channels...</div>
 
-<div id="channelList" class="channel-list"></div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  const m3uUrl = 'https://iptv-org.github.io/iptv/index.m3u';
 
-<script src="app.js"></script>
+  const videoPlayer = document.getElementById('videoPlayer');
+  const channelList = document.getElementById('channelList');
+
+  let channels = [];
+  let hls;
+
+  fetch(m3uUrl)
+    .then(res => res.text())
+    .then(parseM3U)
+    .catch(err => {
+      channelList.textContent = "Failed to load channels.";
+      console.error(err);
+    });
+
+  function parseM3U(data) {
+    const lines = data.split('\n');
+    channels = [];
+    for(let i=0; i<lines.length; i++) {
+      if(lines[i].startsWith('#EXTINF')) {
+        const titleMatch = lines[i].match(/,(.*)/);
+        const url = lines[i+1];
+        if(titleMatch && url) {
+          channels.push({
+            title: titleMatch[1].trim(),
+            url: url.trim()
+          });
+        }
+      }
+    }
+    showChannels();
+  }
+
+  function showChannels() {
+    channelList.innerHTML = '';
+    channels.slice(0, 30).forEach(ch => {  // Limit to first 30 channels to avoid overload
+      const btn = document.createElement('button');
+      btn.textContent = ch.title;
+      btn.className = 'channel-button';
+      btn.onclick = () => playChannel(ch.url);
+      channelList.appendChild(btn);
+    });
+  }
+
+  function playChannel(url) {
+    if(hls) {
+      hls.destroy();
+      hls = null;
+    }
+    if(videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+      videoPlayer.src = url;
+      videoPlayer.play();
+    } else if(Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(videoPlayer);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoPlayer.play();
+      });
+    } else {
+      alert("Your browser does not support this video format.");
+    }
+  }
+</script>
+
 </body>
 </html>

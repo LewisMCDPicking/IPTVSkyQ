@@ -1,4 +1,3 @@
-// Use a free public test M3U playlist for testing
 const m3uUrl = 'http://iptv-org.github.io/iptv/index.m3u';
 
 const videoPlayer = document.getElementById("videoPlayer");
@@ -67,11 +66,27 @@ function showChannels(type) {
   });
 }
 
+let hls;
+
 function playChannel(url) {
-  videoPlayer.src = url;
-  videoPlayer.play().catch(() => {
-    alert("Failed to play this channel. Try another one.");
-  });
+  if (hls) {
+    hls.destroy();
+  }
+
+  if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+    // Some browsers (Safari) support HLS natively
+    videoPlayer.src = url;
+    videoPlayer.play();
+  } else if (Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(videoPlayer);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      videoPlayer.play();
+    });
+  } else {
+    alert("Your browser does not support this video format.");
+  }
 }
 
 // Handle nav clicks and toggle active button

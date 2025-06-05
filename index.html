@@ -2,32 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sky Q Style IPTV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkyQ IPTV Guide</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
   <div class="app-container">
-    <header class="skyq-header">
-      <h1>Sky Q IPTV</h1>
-    </header>
+    <aside class="sidebar">
+      <div class="logo">Sky</div>
+      <ul class="menu">
+        <li class="active">TV Guide</li>
+        <li>Recordings</li>
+        <li>Catch Up</li>
+        <li>On Demand</li>
+        <li>Sky Cinema</li>
+        <li>Sky Store</li>
+        <li>Sport</li>
+      </ul>
+    </aside>
 
-    <div class="content-container">
-      <nav id="channel-list" class="channel-list" aria-label="Channel List">
-        <!-- Channel buttons inserted here -->
-      </nav>
+    <main class="main-content">
+      <header class="header">
+        <div class="left">
+          <span class="time">7:58am</span>
+        </div>
+        <div class="right">
+          <span class="channel">BBC One HD</span>
+          <span class="program">Breakfast</span>
+          <span class="meta">07:30 - 09:00 | HD | Subtitles</span>
+        </div>
+      </header>
 
-      <section class="preview-section">
-        <div class="video-wrapper">
-          <video id="preview-player" class="preview-player" muted playsinline></video>
-          <div id="loading-egg" class="loading-egg"></div>
+      <section class="preview">
+        <video id="previewVideo" controls autoplay muted></video>
+      </section>
+
+      <section class="epg">
+        <div class="time-bar">
+          <span>7:30am</span><span>8:00am</span><span>8:30am</span>
+        </div>
+
+        <div class="channel-row" onclick="playStream('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">
+          <div class="channel-name">BBC One</div>
+          <div class="programs">
+            <div class="program selected">Breakfast</div>
+            <div class="program">Morning Live</div>
+          </div>
+        </div>
+
+        <div class="channel-row" onclick="playStream('https://test-streams.mux.dev/test_001/stream.m3u8')">
+          <div class="channel-name">ITV</div>
+          <div class="programs">
+            <div class="program">Good Morning Britain</div>
+            <div class="program">Lorraine</div>
+          </div>
         </div>
       </section>
-    </div>
-
-    <section class="main-player-section">
-      <video id="main-player" class="main-player" controls playsinline></video>
-    </section>
+    </main>
   </div>
 
   <script src="script.js"></script>

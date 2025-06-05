@@ -27,12 +27,14 @@ function parseM3U(data) {
     if (lines[i].startsWith('#EXTINF')) {
       const titleMatch = lines[i].match(/,(.*)/);
       const groupMatch = lines[i].match(/group-title="(.*?)"/i);
+      const logoMatch = lines[i].match(/tvg-logo="(.*?)"/i);
       const url = lines[i + 1];
 
-      if (titleMatch && url && url.startsWith('http')) {
+      if (titleMatch && url) {
         channels.push({
           title: titleMatch[1].trim(),
           group: groupMatch ? groupMatch[1].toLowerCase() : 'other',
+          logo: logoMatch ? logoMatch[1] : '',
           url: url.trim()
         });
       }
@@ -49,6 +51,7 @@ function showChannels(type) {
     series: ['series', 'tv shows', 'drama']
   };
 
+  // fallback: if no matches found, show all channels
   let filtered = channels.filter(ch => {
     return filterGroup[type].some(keyword => ch.group.includes(keyword));
   });
@@ -57,9 +60,20 @@ function showChannels(type) {
 
   filtered.forEach(ch => {
     const btn = document.createElement('button');
-    btn.textContent = ch.title;
     btn.className = 'channel-button';
     btn.title = ch.group;
+
+    const img = document.createElement('img');
+    img.src = ch.logo || 'https://via.placeholder.com/50x50?text=No+Logo';
+    img.alt = ch.title;
+    img.className = 'channel-logo';
+
+    const span = document.createElement('span');
+    span.textContent = ch.title;
+
+    btn.appendChild(img);
+    btn.appendChild(span);
+
     btn.onclick = () => playChannel(ch.url);
     channelList.appendChild(btn);
   });

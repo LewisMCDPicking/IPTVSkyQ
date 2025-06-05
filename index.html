@@ -2,73 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SkyQ IPTV Interface</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UK MEDIA IPTV - SkyQ Style</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-container">
-    <aside class="sidebar">
-      <ul>
-        <li class="nav-item active" data-target="guide">TV Guide</li>
-        <li class="nav-item" data-target="live">Live TV</li>
-        <li class="nav-item" data-target="films">Films</li>
-        <li class="nav-item" data-target="series">Series</li>
-      </ul>
-    </aside>
 
-    <main class="main-content">
-      <header>
-        <div class="logo">Sky</div>
-        <div class="current-time" id="time">--:--</div>
-      </header>
+<header>UK MEDIA IPTV - SkyQ Style</header>
 
-      <section class="preview">
-        <video id="videoPlayer" controls autoplay muted></video>
-      </section>
+<nav>
+  <button id="nav-live" class="active" data-type="live">Live TV</button>
+  <button id="nav-movies" data-type="movies">Movies</button>
+  <button id="nav-series" data-type="series">Series</button>
+</nav>
 
-      <section id="guide" class="content-section">
-        <h2>TV Guide</h2>
-        <div class="epg-grid">
-          <div class="epg-row">
-            <span class="channel-name">BBC One</span>
-            <div class="program" style="width: 40%;">Breakfast</div>
-            <div class="program" style="width: 60%;">Morning Live</div>
-          </div>
-          <div class="epg-row">
-            <span class="channel-name">BBC Two</span>
-            <div class="program" style="width: 50%;">News</div>
-            <div class="program" style="width: 50%;">Gardeners’ World</div>
-          </div>
-        </div>
-      </section>
+<div class="player-wrapper">
+  <video id="videoPlayer" controls autoplay></video>
+</div>
 
-      <section id="live" class="content-section hidden">
-        <h2>Live TV</h2>
-        <div class="channel-list">
-          <div class="channel" data-url="http://mv223.uk:8880/live/tPGZaNHC/eEtNUB671N/1.ts">BBC One</div>
-          <div class="channel" data-url="http://mv223.uk:8880/live/tPGZaNHC/eEtNUB671N/2.ts">BBC Two</div>
-          <div class="channel" data-url="http://mv223.uk:8880/live/tPGZaNHC/eEtNUB671N/3.ts">ITV</div>
-        </div>
-      </section>
+<div id="channelList" class="channel-list"></div>
 
-      <section id="films" class="content-section hidden">
-        <h2>Films</h2>
-        <ul class="vod-list">
-          <li>Film 1 - <em>Coming Soon</em></li>
-          <li>Film 2 - <em>Coming Soon</em></li>
-        </ul>
-      </section>
-
-      <section id="series" class="content-section hidden">
-        <h2>Series</h2>
-        <ul class="vod-list">
-          <li>Series 1 - <em>Coming Soon</em></li>
-          <li>Series 2 - <em>Coming Soon</em></li>
-        </ul>
-      </section>
-    </main>
-  </div>
-  <script src="script.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

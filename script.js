@@ -1,17 +1,36 @@
-function playStream(url) {
-  const video = document.getElementById('previewVideo');
-  if (Hls.isSupported()) {
-    if (window.hls) {
-      window.hls.destroy();
-    }
-    window.hls = new Hls();
-    window.hls.loadSource(url);
-    window.hls.attachMedia(video);
-    video.play();
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.play();
-  } else {
-    console.log('HLS not supported');
+document.addEventListener("DOMContentLoaded", () => {
+  const timeEl = document.getElementById("time");
+  const videoPlayer = document.getElementById("videoPlayer");
+  const channels = document.querySelectorAll(".channel");
+  const navItems = document.querySelectorAll(".nav-item");
+  const sections = document.querySelectorAll(".content-section");
+
+  function updateTime() {
+    const now = new Date();
+    timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-}
+
+  updateTime();
+  setInterval(updateTime, 60000);
+
+  channels.forEach(channel => {
+    channel.addEventListener("click", () => {
+      const url = channel.getAttribute("data-url");
+      videoPlayer.src = url;
+      videoPlayer.play().catch(err => console.warn("Stream failed to load", err));
+    });
+  });
+
+  navItems.forEach(item => {
+    item.addEventListener("click", () => {
+      navItems.forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+
+      const target = item.getAttribute("data-target");
+      sections.forEach(section => {
+        section.classList.add("hidden");
+        if (section.id === target) section.classList.remove("hidden");
+      });
+    });
+  });
+});

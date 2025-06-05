@@ -1,16 +1,21 @@
-// ====== Your IPTV Xtream URL - correctly formatted =======
-const M3U_URL = 'http://mv223.uk:8880/get.php?username=uc6Kcf7Y&password=fGJajuyUX2&type=m3u_plus&output=mpegts';
+// ====== Replace with your actual M3U URL =======
+const M3U_URL = 'http://srv2.slweb.tv/get.php?username=realbazaar&password=caroline1&type=m3u_plus&output=ts';
+
+// Replace with your EPG XMLTV URL if available (must allow CORS or use proxy)
 const EPG_URL = 'https://iptv-org.github.io/epg/guides/uk.xml';
 
+// Global variables
 let channels = [];
 let epgData = {};
 let selectedChannelIndex = 0;
 
+// Elements
 const videoPlayer = document.getElementById('videoPlayer');
 const channelListEl = document.getElementById('channelList');
 const channelNameEl = document.getElementById('channelName');
 const epgGridEl = document.getElementById('epgGrid');
 
+// Load M3U playlist
 async function loadM3U(url) {
   try {
     const res = await fetch(url);
@@ -25,6 +30,7 @@ async function loadM3U(url) {
   }
 }
 
+// Parse M3U playlist text into channels array
 function parseM3U(data) {
   channels = [];
   const lines = data.split('\n').map(line => line.trim());
@@ -43,17 +49,18 @@ function parseM3U(data) {
 
       channels.push({
         id: tvgIdMatch ? tvgIdMatch[1] : null,
-        name: (tvgNameMatch ? tvgNameMatch[1] : (channelNameMatch ? channelNameMatch[1] : 'Unknown')),
+        name: tvgNameMatch ? tvgNameMatch[1] : (channelNameMatch ? channelNameMatch[1] : 'Unknown'),
         logo: tvgLogoMatch ? tvgLogoMatch[1] : null,
         group: groupMatch ? groupMatch[1] : 'Others',
         url: urlLine
       });
 
-      i++; // skip next line
+      i++;
     }
   }
 }
 
+// Build the horizontal channel list UI
 function buildChannelList() {
   channelListEl.innerHTML = '';
   channels.forEach((ch, idx) => {
@@ -80,6 +87,7 @@ function buildChannelList() {
   });
 }
 
+// Select channel by index
 function selectChannel(index) {
   if (index < 0 || index >= channels.length) return;
   selectedChannelIndex = index;
@@ -96,6 +104,7 @@ function selectChannel(index) {
   displayEPGForChannel(ch.id);
 }
 
+// Load and parse EPG XMLTV
 async function loadEPG(url) {
   try {
     const res = await fetch(url);
@@ -107,6 +116,7 @@ async function loadEPG(url) {
   }
 }
 
+// Parse EPG XML into a dictionary keyed by channel id
 function parseEPG(xmlText) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlText, "application/xml");
@@ -127,7 +137,11 @@ function parseEPG(xmlText) {
     const start = prg.getAttribute('start');
     const stop = prg.getAttribute('stop');
 
-    epgData[chId].push({ title, start, stop });
+    epgData[chId].push({
+      title,
+      start,
+      stop,
+    });
   });
 
   for (const chId in epgData) {
@@ -137,6 +151,7 @@ function parseEPG(xmlText) {
   displayEPGForChannel(channels[selectedChannelIndex]?.id);
 }
 
+// Display EPG items for a given channel id
 function displayEPGForChannel(channelId) {
   epgGridEl.innerHTML = '';
   if (!channelId || !epgData[channelId]) {
@@ -162,6 +177,7 @@ function displayEPGForChannel(channelId) {
   });
 }
 
+// Helper to parse XMLTV date string to Date object
 function parseEPGDate(dateStr) {
   const year = +dateStr.substr(0, 4);
   const month = +dateStr.substr(4, 2) - 1;
@@ -172,6 +188,7 @@ function parseEPGDate(dateStr) {
   return new Date(Date.UTC(year, month, day, hour, min, sec));
 }
 
+// Initialize the app
 function init() {
   loadM3U(M3U_URL);
   loadEPG(EPG_URL);

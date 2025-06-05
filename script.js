@@ -1,36 +1,83 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const timeEl = document.getElementById("time");
-  const videoPlayer = document.getElementById("videoPlayer");
-  const channels = document.querySelectorAll(".channel");
-  const navItems = document.querySelectorAll(".nav-item");
-  const sections = document.querySelectorAll(".content-section");
+const m3uUrl = 'http://mv223.uk:8880/get.php?username=tPGZaNHC&password=eEtNUB671N&type=m3u_plus&output=mpegts';
 
-  function updateTime() {
-    const now = new Date();
-    timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
+const videoPlayer = document.getElementById("videoPlayer");
+const channelList = document.getElementById("channelList");
 
-  updateTime();
-  setInterval(updateTime, 60000);
+// Navigation buttons
+const navButtons = {
+  live: document.getElementById('nav-live'),
+  movies: document.getElementById('nav-movies'),
+  series: document.getElementById('nav-series')
+};
 
-  channels.forEach(channel => {
-    channel.addEventListener("click", () => {
-      const url = channel.getAttribute("data-url");
-      videoPlayer.src = url;
-      videoPlayer.play().catch(err => console.warn("Stream failed to load", err));
-    });
+let channels = [];
+
+fetch(m3uUrl)
+  .then(res => res.text())
+  .then(parseM3U)
+  .catch(err => {
+    console.error('Failed to load M3U playlist:', err);
+    channelList.innerHTML = "<p style='color: red;'>Failed to load channels. Check your M3U URL.</p>";
   });
 
-  navItems.forEach(item => {
-    item.addEventListener("click", () => {
-      navItems.forEach(i => i.classList.remove("active"));
-      item.classList.add("active");
+function parseM3U(data) {
+  const lines = data.split('\n');
+  channels = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('#EXTINF')) {
+      const titleMatch = lines[i].match(/,(.*)/);
+      const groupMatch = lines[i].match(/group-title="(.*?)"/i);
+      const url = lines[i + 1];
 
-      const target = item.getAttribute("data-target");
-      sections.forEach(section => {
-        section.classList.add("hidden");
-        if (section.id === target) section.classList.remove("hidden");
-      });
-    });
+      if (titleMatch && url) {
+        channels.push({
+          title: titleMatch[1].trim(),
+          group: groupMatch ? groupMatch[1].toLowerCase() : 'other',
+          url: url.trim()
+        });
+      }
+    }
+  }
+  showChannels('live');
+}
+
+function showChannels(type) {
+  channelList.innerHTML = '';
+  const filterGroup = {
+    live: ['uk', 'entertainment', 'news', 'sports'],
+    movies: ['movie', 'film', 'cinema'],
+    series: ['series', 'tv shows', 'drama']
+  };
+
+  // fallback: if no matches found, show all channels
+  let filtered = channels.filter(ch => {
+    return filterGroup[type].some(keyword => ch.group.includes(keyword));
+  });
+
+  if(filtered.length === 0) filtered = channels;
+
+  filtered.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.textContent = ch.title;
+    btn.className = 'channel-button';
+    btn.title = ch.group;
+    btn.onclick = () => playChannel(ch.url);
+    channelList.appendChild(btn);
+  });
+}
+
+function playChannel(url) {
+  videoPlayer.src = url;
+  videoPlayer.play().catch(() => {
+    alert("Failed to play this channel. Try another one.");
+  });
+}
+
+// Handle nav clicks and toggle active button
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    showChannels(btn.dataset.type);
   });
 });

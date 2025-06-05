@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IPTV Player</title>
+  <title>Sky Q IPTV</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-container">
-    <h1 id="channelName">Loading...</h1>
-    <video id="videoPlayer" controls autoplay></video>
-    <div id="channelList"></div>
-    <div id="epgGrid"></div>
+  <div class="container">
+    <div class="video-panel">
+      <video id="videoPlayer" controls autoplay></video>
+      <div id="nowPlaying">Loading...</div>
+    </div>
+    <div class="guide-panel">
+      <h2>Channel Guide</h2>
+      <div id="channelList" class="channel-list"></div>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>

@@ -1,4 +1,4 @@
-const M3U_URL = 'https://corsproxy.io/?http://srv2.slweb.tv/get.php?username=realbazaar&password=caroline1&type=m3u_plus&output=ts';
+const M3U_URL = 'https://corsproxy.io/?url=https://iptv-org.github.io/iptv/countries/gb.m3u';
 
 const videoPlayer = document.getElementById('videoPlayer');
 const channelList = document.getElementById('channelList');

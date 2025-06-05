@@ -1,4 +1,5 @@
-const m3uUrl = 'http://mv223.uk:8880/get.php?username=uc6Kcf7Y&password=fGJajuyUX2&type=m3u_plus&output=mpegts';
+// Use a free public test M3U playlist for testing
+const m3uUrl = 'http://iptv-org.github.io/iptv/index.m3u';
 
 const videoPlayer = document.getElementById("videoPlayer");
 const channelList = document.getElementById("channelList");

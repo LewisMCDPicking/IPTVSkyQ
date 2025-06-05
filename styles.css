@@ -15,41 +15,44 @@ header {
 nav {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem;
 }
 
 nav button {
   background: #003366;
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 nav button.active {
   background: #1a75ff;
 }
 
-.main-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.player-wrapper {
+  text-align: center;
+  padding: 0.5rem;
 }
 
-.channel-list-wrapper {
+video {
   width: 100%;
-  overflow-x: auto;
-  margin-bottom: 1rem;
+  max-width: 100%;
+  height: auto;
+  border: 3px solid #0059b3;
+  border-radius: 12px;
 }
 
 .channel-list {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 10px;
-  padding: 0 1rem;
+  overflow-x: auto;
+  padding: 0.5rem 1rem;
+  gap: 12px;
+  scroll-snap-type: x mandatory;
 }
 
 .channel-button {
@@ -57,35 +60,23 @@ nav button.active {
   color: white;
   border: none;
   padding: 0.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  width: 90px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  text-align: center;
+  font-size: 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 100px;
 }
 
-.channel-button:hover {
-  background: #1a75ff;
-}
-
-.channel-logo {
-  width: 50px;
-  height: 50px;
+.channel-button img {
+  width: 48px;
+  height: 48px;
   object-fit: contain;
-  margin-bottom: 0.5rem;
-}
-
-.player-wrapper {
-  text-align: center;
-  width: 100%;
-}
-
-video {
-  width: 100%;
-  max-width: 800px;
-  height: auto;
-  border: 3px solid #0059b3;
-  border-radius: 12px;
+  margin-bottom: 0.3rem;
+  background: white;
+  border-radius: 6px;
 }

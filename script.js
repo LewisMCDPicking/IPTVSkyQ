@@ -1,4 +1,4 @@
-const M3U_URL = 'https://api.allorigins.win/raw?url=http://srv2.slweb.tv/get.php?username=realbazaar&password=caroline1&type=m3u_plus&output=ts';
+const M3U_URL = 'https://corsproxy.io/?http://srv2.slweb.tv/get.php?username=realbazaar&password=caroline1&type=m3u_plus&output=ts';
 
 const videoPlayer = document.getElementById('videoPlayer');
 const channelList = document.getElementById('channelList');
@@ -15,8 +15,8 @@ async function loadM3U() {
     displayChannels();
     playChannel(0);
   } catch (err) {
-    nowPlaying.textContent = 'Error loading channels.';
-    console.error(err);
+    nowPlaying.textContent = '❌ Error loading M3U playlist.';
+    console.error('M3U Load Error:', err);
   }
 }
 

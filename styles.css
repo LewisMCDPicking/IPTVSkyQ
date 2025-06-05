@@ -1,108 +1,57 @@
-/* Basic Reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  background-color: #0a0f22;
-  color: #e0e0e0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: flex;
-  justify-content: center;
-  padding: 20px;
+  font-family: sans-serif;
+  margin: 0;
+  background-color: #111;
+  color: #fff;
 }
 
 .app-container {
-  max-width: 1200px;
+  padding: 10px;
+}
+
+video {
   width: 100%;
-}
-
-header h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #00aeef;
-}
-
-.video-section {
-  position: relative;
-  margin-bottom: 15px;
-}
-
-#videoPlayer {
-  width: 100%;
-  height: 360px;
+  height: 400px;
   background: black;
-  border: 3px solid #00aeef;
-  border-radius: 6px;
+  margin-bottom: 10px;
 }
 
-.channel-name {
-  margin-top: 8px;
-  font-weight: 600;
-  font-size: 18px;
-  color: #00aeef;
-  text-align: center;
-}
-
-.channel-list {
+#channelList {
   display: flex;
   overflow-x: auto;
-  padding: 8px 0;
-  border-bottom: 2px solid #1b2750;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .channel-item {
-  flex: 0 0 auto;
-  margin-right: 12px;
-  padding: 6px 10px;
-  background: #141c37;
-  border-radius: 5px;
+  background: #222;
+  padding: 8px;
+  margin-right: 6px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: background-color 0.3s;
-  min-width: 120px;
-  text-align: center;
-  color: #a0a8b3;
-  font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .channel-item.selected {
-  background: #00aeef;
-  color: #0a0f22;
-  font-weight: 700;
+  background: #007bff;
 }
 
 .channel-logo {
-  max-height: 30px;
-  max-width: 50px;
-  margin-right: 8px;
-  object-fit: contain;
-  border-radius: 3px;
+  width: 60px;
+  height: auto;
 }
 
-.epg-grid {
-  background: #141c37;
-  padding: 10px;
-  border-radius: 6px;
-  min-height: 120px;
-  max-height: 200px;
-  overflow-y: auto;
+#epgGrid {
+  margin-top: 10px;
 }
 
 .epg-item {
-  padding: 6px 8px;
-  border-radius: 4px;
-  margin-bottom: 6px;
-  background: #1b2750;
-  color: #e0e0e0;
+  padding: 4px;
+  margin-bottom: 4px;
+  background: #333;
+  border-left: 4px solid transparent;
 }
 
 .epg-item.current {
-  background: #00aeef;
-  color: #0a0f22;
-  font-weight: 700;
+  border-left-color: #00ff90;
+  background: #1e1e1e;
 }

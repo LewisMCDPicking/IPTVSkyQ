@@ -1,4 +1,4 @@
-const m3uUrl = 'http://mv223.uk:8880/get.php?username=tPGZaNHC&password=eEtNUB671N&type=m3u_plus&output=mpegts';
+const m3uUrl = 'http://mv223.uk:8880/get.php?username=uc6Kcf7Y&password=fGJajuyUX2&type=m3u_plus&output=mpegts';
 
 const videoPlayer = document.getElementById("videoPlayer");
 const channelList = document.getElementById("channelList");

@@ -2,72 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>IPTV Player</title>
-  <style>
-    body { background: #111; color: #fff; font-family: sans-serif; }
-    #channelList { display: flex; overflow-x: auto; padding: 10px; gap: 10px; }
-    .channel { background: #222; padding: 10px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
-    .channel.selected { background: #007bff; }
-    video { width: 100%; max-height: 400px; background: black; margin-bottom: 10px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPTV Player with Logos</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <video id="videoPlayer" controls autoplay></video>
-  <div id="channelList">Loading channels...</div>
-
-<script>
-const rawUrl = 'http://cord-cutter.net:8080/get.php?username=5ZK2w7aJNy&password=J3ddWZD9Ww&type=m3u_plus';
-const m3uUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(rawUrl);
-
-const videoPlayer = document.getElementById('videoPlayer');
-const channelList = document.getElementById('channelList');
-
-let channels = [];
-
-fetch(m3uUrl)
-  .then(res => res.text())
-  .then(parseM3U)
-  .catch(err => {
-    console.error('Failed to load M3U playlist:', err);
-    channelList.innerHTML = "<p style='color: red;'>Failed to load channels.</p>";
-  });
-
-function parseM3U(data) {
-  const lines = data.split('\n');
-  channels = [];
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith('#EXTINF')) {
-      const titleMatch = lines[i].match(/,(.*)/);
-      const url = lines[i + 1];
-      if (titleMatch && url) {
-        channels.push({ title: titleMatch[1].trim(), url: url.trim() });
-      }
-    }
-  }
-  if (channels.length === 0) {
-    channelList.innerHTML = "<p>No channels found.</p>";
-    return;
-  }
-  channelList.innerHTML = '';
-  channels.forEach((ch, idx) => {
-    const btn = document.createElement('div');
-    btn.className = 'channel';
-    btn.textContent = ch.title;
-    btn.onclick = () => playChannel(idx);
-    channelList.appendChild(btn);
-  });
-  playChannel(0);
-}
-
-function playChannel(index) {
-  const ch = channels[index];
-  videoPlayer.src = ch.url;
-  videoPlayer.play().catch(() => alert("Failed to play channel"));
-  document.querySelectorAll('.channel').forEach(el => el.classList.remove('selected'));
-  document.querySelectorAll('.channel')[index].classList.add('selected');
-}
-</script>
-
+  <div class="app-container">
+    <h1>Channel Guide</h1>
+    <video id="videoPlayer" controls autoplay></video>
+    <nav>
+      <button data-type="live" class="active" id="nav-live">Live</button>
+      <button data-type="movies" id="nav-movies">Movies</button>
+      <button data-type="series" id="nav-series">Series</button>
+    </nav>
+    <div id="channelList"></div>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>

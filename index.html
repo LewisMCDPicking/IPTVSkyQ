@@ -1,43 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ITDB SkyCube - SkyQ Style IPTV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sky Q Clone UI</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-container">
-    <h1>ITDB SkyCube</h1>
-
-    <div class="player-section">
-      <video id="videoPlayer" controls autoplay></video>
-      <div class="volume-controls">
-        <button id="muteBtn">🔊</button>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
-      </div>
-    </div>
-
-    <div class="preview-section">
-      <h3>Preview</h3>
-      <video id="previewPlayer" muted autoplay loop></video>
-    </div>
-
-    <div class="channel-list">
-      <ul id="channelList">
-        <!-- Will be filled dynamically by JS -->
+  <div class="container">
+    <aside class="sidebar">
+      <ul>
+        <li class="active">Home</li>
+        <li>TV Guide</li>
+        <li>Recordings</li>
+        <li>Catch Up</li>
+        <li>On Demand</li>
+        <li>Sky Store</li>
+        <li>Apps</li>
+        <li>Settings</li>
       </ul>
-    </div>
-
-    <div class="epg-grid-container">
-      <h3>TV Guide</h3>
-      <table id="epgGrid">
-        <!-- Will be filled dynamically by JS -->
-      </table>
-    </div>
-
-    <p class="info">Click a channel once for preview, click again to go full screen. Use the guide below to see upcoming shows.</p>
+    </aside>
+    <main class="content">
+      <section class="row">
+        <h2>Top Picks</h2>
+        <div class="tiles">
+          <div class="tile" tabindex="0">Show 1</div>
+          <div class="tile" tabindex="0">Show 2</div>
+          <div class="tile" tabindex="0">Show 3</div>
+        </div>
+      </section>
+      <section class="row">
+        <h2>Continue Watching</h2>
+        <div class="tiles">
+          <div class="tile" tabindex="0">Show 4</div>
+          <div class="tile" tabindex="0">Show 5</div>
+          <div class="tile" tabindex="0">Show 6</div>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>

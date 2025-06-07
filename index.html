@@ -1,27 +1,48 @@
-async function fetchText(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
-  return await res.text();
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Freeview IPTV + EPG Demo</title>
+</head>
+<body>
+  <h2>Freeview IPTV + EPG Demo</h2>
+  <div id="status"></div>
+  <div id="error" style="color:red;"></div>
+  <h3>M3U Playlist Preview:</h3>
+  <pre id="m3uPreview" style="max-height:300px; overflow:auto; background:#eee; padding:10px;"></pre>
+  <h3>EPG XML Preview:</h3>
+  <pre id="epgPreview" style="max-height:300px; overflow:auto; background:#eee; padding:10px;"></pre>
 
-async function loadData() {
-  const status = document.getElementById('status');
-  const error = document.getElementById('error');
-  const m3uPreview = document.getElementById('m3uPreview');
-  const epgPreview = document.getElementById('epgPreview');
+  <script>
+    async function fetchText(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
+      return await res.text();
+    }
 
-  try {
-    status.textContent = 'Fetching M3U playlist...';
-    const m3uText = await fetchText('https://raw.githubusercontent.com/iptv-org/iptv/master/streams/uk.m3u');
-    m3uPreview.textContent = m3uText.slice(0, 1000) + (m3uText.length > 1000 ? '\n... (truncated)' : '');
+    async function loadData() {
+      const status = document.getElementById('status');
+      const error = document.getElementById('error');
+      const m3uPreview = document.getElementById('m3uPreview');
+      const epgPreview = document.getElementById('epgPreview');
 
-    status.textContent = 'Fetching EPG XML...';
-    const epgText = await fetchText('https://raw.githubusercontent.com/iptv-org/epg/master/guides/gb/freeview.xml'); // try freeview.xml or another
-    epgPreview.textContent = epgText.slice(0, 1000) + (epgText.length > 1000 ? '\n... (truncated)' : '');
+      try {
+        status.textContent = 'Fetching M3U playlist...';
+        const m3uText = await fetchText('https://raw.githubusercontent.com/iptv-org/iptv/master/streams/uk.m3u');
+        m3uPreview.textContent = m3uText.slice(0, 1000) + (m3uText.length > 1000 ? '\n... (truncated)' : '');
 
-    status.textContent = 'Data loaded successfully!';
-  } catch (err) {
-    error.textContent = 'Error loading data: ' + err.message;
-    status.textContent = '';
-  }
-}
+        status.textContent = 'Fetching EPG XML...';
+        const epgText = await fetchText('https://raw.githubusercontent.com/iptv-org/epg/master/guides/gb/freeview.xml');
+        epgPreview.textContent = epgText.slice(0, 1000) + (epgText.length > 1000 ? '\n... (truncated)' : '');
+
+        status.textContent = 'Data loaded successfully!';
+      } catch (err) {
+        error.textContent = 'Error loading data: ' + err.message;
+        status.textContent = '';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

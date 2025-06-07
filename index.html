@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>EPG Debug Viewer</title>
+  <title>Sky XMLTV Debug Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,8 +41,8 @@
     }
 
     async function fetchEPG() {
-      // New working EPG source via proxy
-      const url = 'https://cors-anywhere.herokuapp.com/https://iptv-org.github.io/epg/guides/gb/sky.com.epg.xml';
+      // ✅ Correct working EPG file
+      const url = 'https://cors-anywhere.herokuapp.com/https://iptv-org.github.io/epg/guides/gb/sky.com.xml';
       log('Fetching XML from: ' + url);
       const res = await fetch(url);
       if (!res.ok) throw new Error('Network response was not ok: ' + res.status);

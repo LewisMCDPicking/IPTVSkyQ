@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>SkyQ Layout with Your Pastebin M3U</title>
+<title>SkyQ Layout with Categories & Preview</title>
 <style>
   body {
     margin: 0;
@@ -12,20 +12,23 @@
     display: flex;
     height: 100vh;
   }
+  /* Sidebar */
   .sidebar {
-    width: 220px;
+    width: 200px;
     background: #001d3d;
     padding: 20px;
     display: flex;
     flex-direction: column;
+    gap: 10px;
   }
   .menu-item {
-    cursor: pointer;
     font-size: 16px;
     opacity: 0.7;
+    transition: 0.2s;
     padding: 8px 10px;
     border-left: 3px solid transparent;
-    transition: 0.2s;
+    cursor: pointer;
+    user-select: none;
   }
   .menu-item:hover,
   .menu-item.active {
@@ -35,27 +38,15 @@
   }
   .submenu {
     margin-left: 15px;
-    margin-top: 10px;
     display: none;
     flex-direction: column;
+    gap: 5px;
   }
   .submenu.active {
     display: flex;
   }
-  .submenu-item {
-    cursor: pointer;
-    padding: 6px 10px;
-    font-size: 14px;
-    opacity: 0.7;
-    border-left: 3px solid transparent;
-    transition: 0.2s;
-  }
-  .submenu-item:hover,
-  .submenu-item.active {
-    background-color: #003877;
-    opacity: 1;
-    border-left: 3px solid #00b4ff;
-  }
+
+  /* Main content */
   .main {
     flex: 1;
     padding: 20px;
@@ -89,216 +80,230 @@
     position: relative;
   }
   video {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     background: black;
   }
-  .channels-list {
+  .channel-list {
     margin-top: 20px;
+    max-width: 600px;
     overflow-y: auto;
-    max-height: calc(100vh - 420px);
+    flex-grow: 1;
   }
   .channel-item {
-    cursor: pointer;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    transition: background-color 0.2s;
+    cursor: pointer;
   }
-  .channel-item:hover,
-  .channel-item.active {
+  .channel-item:hover {
     background-color: #0051a2;
   }
 </style>
 </head>
 <body>
-
-<div class="sidebar">
-  <div class="menu-item" id="tvGuideBtn">TV Guide</div>
-  <div class="submenu" id="categoryMenu">
-    <div class="submenu-item active" data-category="all">All Channels</div>
-    <div class="submenu-item" data-category="Entertainment">Entertainment</div>
-    <div class="submenu-item" data-category="Kids">Kids</div>
-    <div class="submenu-item" data-category="Sports">Sports</div>
-    <div class="submenu-item" data-category="Music">Music</div>
-    <div class="submenu-item" data-category="Films">Films</div>
-  </div>
-</div>
-
-<div class="main">
-  <div class="top-bar">
-    <div class="logo">sky</div>
-    <div id="time">--:--</div>
+  <div class="sidebar">
+    <div class="menu-item active" id="menu-tvguide">TV Guide</div>
+    <div class="submenu active" id="category-list">
+      <!-- Categories will be dynamically inserted here -->
+    </div>
   </div>
 
-  <div class="preview-box" id="previewBox">
-    <div id="previewText">Select a channel to preview</div>
-    <video id="previewVideo" controls style="display:none;"></video>
-  </div>
+  <div class="main">
+    <div class="top-bar">
+      <div class="logo">sky</div>
+      <div id="time">--:--</div>
+    </div>
 
-  <div class="channels-list" id="channelsList">
-    Loading channels...
+    <div class="preview-box" id="preview-box">
+      <video id="preview-video" controls muted></video>
+      <div id="preview-text">Select a channel to watch</div>
+    </div>
+
+    <div class="channel-list" id="channel-list">
+      <!-- Channels for selected category will appear here -->
+    </div>
   </div>
-</div>
 
 <script>
-  const pastebinUrl = "https://pastebin.com/raw/VzBfHXLJ";
-
-  const tvGuideBtn = document.getElementById("tvGuideBtn");
-  const categoryMenu = document.getElementById("categoryMenu");
-  const categoryItems = categoryMenu.querySelectorAll(".submenu-item");
-  const channelsList = document.getElementById("channelsList");
-  const previewVideo = document.getElementById("previewVideo");
-  const previewText = document.getElementById("previewText");
-  const previewBox = document.getElementById("previewBox");
-
-  let currentCategory = "all";
-  let currentChannel = null;
-  let fullscreen = false;
-  let channels = [];
-
-  // Show/hide category menu when clicking TV Guide
-  tvGuideBtn.addEventListener("click", () => {
-    categoryMenu.classList.toggle("active");
-  });
-
-  // Parse M3U content from pastebin into channel objects
-  function parseM3U(data) {
-    const lines = data.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-    let parsedChannels = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith("#EXTINF")) {
-        // Parse #EXTINF line
-        const infoLine = lines[i];
-        const urlLine = lines[i + 1];
-        i++; // Skip URL line next loop
-
-        // Extract group-title, channel name
-        const groupMatch = infoLine.match(/group-title="([^"]*)"/i);
-        const nameMatch = infoLine.match(/,(.+)$/);
-
-        const group = groupMatch ? groupMatch[1] : "Others";
-        const name = nameMatch ? nameMatch[1] : "Unknown";
-
-        parsedChannels.push({
-          name: name,
-          url: urlLine,
-          category: group
-        });
-      }
-    }
-    return parsedChannels;
-  }
-
-  // Render channels filtered by current category
-  function renderChannels() {
-    channelsList.innerHTML = "";
-    let filteredChannels = channels;
-    if (currentCategory !== "all") {
-      filteredChannels = channels.filter(ch => ch.category === currentCategory);
-    }
-    if (filteredChannels.length === 0) {
-      channelsList.innerHTML = "<p>No channels found in this category.</p>";
-      return;
-    }
-    filteredChannels.forEach(ch => {
-      const div = document.createElement("div");
-      div.className = "channel-item";
-      div.textContent = ch.name;
-      div.dataset.url = ch.url;
-      div.dataset.name = ch.name;
-      div.addEventListener("click", () => {
-        if (currentChannel === ch.name) {
-          // Same channel clicked twice: toggle fullscreen
-          if (!fullscreen) {
-            enterFullscreen(previewBox);
-            fullscreen = true;
-          } else {
-            exitFullscreen();
-            fullscreen = false;
-          }
-        } else {
-          // Different channel clicked: load preview
-          currentChannel = ch.name;
-          fullscreen = false;
-          exitFullscreen();
-          previewVideo.src = ch.url;
-          previewVideo.style.display = "block";
-          previewVideo.play();
-          previewText.style.display = "none";
-          // Highlight selected channel
-          document.querySelectorAll(".channel-item").forEach(item => {
-            item.classList.toggle("active", item.dataset.name === ch.name);
-          });
-        }
-      });
-      channelsList.appendChild(div);
-    });
-  }
-
-  // Fullscreen helpers
-  function enterFullscreen(elem) {
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if (elem.webkitRequestFullscreen) {
-      elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) {
-      elem.msRequestFullscreen();
-    }
-  }
-  function exitFullscreen() {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    }
-  }
-
-  // Handle category clicks
-  categoryItems.forEach(item => {
-    item.addEventListener("click", () => {
-      categoryItems.forEach(i => i.classList.remove("active"));
-      item.classList.add("active");
-      currentCategory = item.getAttribute("data-category");
-      currentChannel = null;
-      fullscreen = false;
-      previewVideo.pause();
-      previewVideo.style.display = "none";
-      previewText.style.display = "block";
-      previewText.textContent = "Select a channel to preview";
-      renderChannels();
-    });
-  });
-
-  // Update time every 10 seconds
+  // Update time display
   function updateTime() {
     const now = new Date();
     let hours = now.getHours();
     let minutes = now.getMinutes();
-    const ampm = hours >= 12 ? "pm" : "am";
+    const ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12 || 12;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    document.getElementById("time").textContent = `${hours}:${minutes}${ampm}`;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    document.getElementById('time').textContent = `${hours}:${minutes}${ampm}`;
   }
   updateTime();
   setInterval(updateTime, 10000);
 
-  // Fetch and load channels from Pastebin, then render
-  fetch(pastebinUrl)
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to fetch M3U data");
-      return res.text();
+  // Elements
+  const categoryListEl = document.getElementById('category-list');
+  const channelListEl = document.getElementById('channel-list');
+  const previewVideoEl = document.getElementById('preview-video');
+  const previewTextEl = document.getElementById('preview-text');
+
+  // Data
+  let channelsByCategory = {};
+  let currentCategory = null;
+  let currentChannelUrl = null;
+  let previewVideoVisible = false;
+
+  // CORS proxy + pastebin raw m3u url
+  const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+  const m3uUrl = 'https://pastebin.com/raw/VzBfHXLJ';
+
+  // Fetch and parse M3U playlist
+  fetch(corsProxy + m3uUrl)
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.text();
     })
-    .then(text => {
-      channels = parseM3U(text);
-      renderChannels();
+    .then(data => {
+      parseM3U(data);
+      buildCategoryMenu();
+      if (currentCategory) {
+        showChannels(currentCategory);
+      }
     })
-    .catch(err => {
-      channelsList.innerHTML = "<p style='color:red;'>Failed to load channels: " + err.message + "</p>";
+    .catch(error => {
+      alert('Failed to load channels: ' + error.message);
     });
 
-</script>
+  // Parse M3U text, group channels by category (tvg-group)
+  function parseM3U(m3uText) {
+    const lines = m3uText.split('\n');
+    channelsByCategory = {};
+    let currentChannel = null;
 
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (line.startsWith('#EXTINF')) {
+        // Example: #EXTINF:-1 tvg-id="BBC1.uk" tvg-name="BBC One" tvg-logo="..." group-title="Entertainment",BBC One
+        currentChannel = {};
+        const groupMatch = line.match(/group-title="([^"]*)"/i);
+        currentChannel.category = groupMatch ? groupMatch[1] : 'Uncategorized';
+
+        const nameMatch = line.match(/,(.*)$/);
+        currentChannel.name = nameMatch ? nameMatch[1] : 'Unknown';
+
+        // Sometimes logo and tvg-id are here, can parse if needed
+      } else if (line && !line.startsWith('#')) {
+        // This is the URL line
+        if (currentChannel) {
+          currentChannel.url = line;
+          // Add to category list
+          if (!channelsByCategory[currentChannel.category]) {
+            channelsByCategory[currentChannel.category] = [];
+          }
+          channelsByCategory[currentChannel.category].push(currentChannel);
+          currentChannel = null;
+        }
+      }
+    }
+
+    // Set default category to first category found
+    const categories = Object.keys(channelsByCategory);
+    if (categories.length > 0) {
+      currentCategory = categories[0];
+    }
+  }
+
+  // Build category menu in sidebar
+  function buildCategoryMenu() {
+    categoryListEl.innerHTML = '';
+    Object.keys(channelsByCategory).forEach(cat => {
+      const catEl = document.createElement('div');
+      catEl.className = 'menu-item';
+      catEl.textContent = cat;
+      catEl.onclick = () => {
+        currentCategory = cat;
+        setActiveCategory(catEl);
+        showChannels(cat);
+        clearPreview();
+      };
+      categoryListEl.appendChild(catEl);
+    });
+    setActiveCategory(categoryListEl.firstChild);
+  }
+
+  function setActiveCategory(activeEl) {
+    [...categoryListEl.children].forEach(el => el.classList.remove('active'));
+    if (activeEl) activeEl.classList.add('active');
+  }
+
+  // Show channels for a given category
+  function showChannels(category) {
+    channelListEl.innerHTML = '';
+    const channels = channelsByCategory[category];
+    channels.forEach(ch => {
+      const chEl = document.createElement('div');
+      chEl.className = 'channel-item';
+      chEl.textContent = ch.name;
+      chEl.onclick = () => {
+        onChannelClick(ch);
+      };
+      channelListEl.appendChild(chEl);
+    });
+  }
+
+  // Handle channel click: show preview, toggle fullscreen if same channel clicked twice
+  function onChannelClick(channel) {
+    if (currentChannelUrl === channel.url) {
+      toggleFullScreen();
+      return;
+    }
+    currentChannelUrl = channel.url;
+    showPreview(channel.url);
+  }
+
+  // Show preview video
+  function showPreview(url) {
+    previewTextEl.style.display = 'none';
+    previewVideoEl.style.display = 'block';
+    previewVideoEl.src = url;
+    previewVideoEl.play();
+    previewVideoVisible = true;
+    exitFullScreenIfNeeded();
+  }
+
+  // Clear preview
+  function clearPreview() {
+    previewVideoEl.pause();
+    previewVideoEl.src = '';
+    previewVideoEl.style.display = 'none';
+    previewTextEl.style.display = 'flex';
+    previewTextEl.textContent = 'Select a channel to watch';
+    currentChannelUrl = null;
+    previewVideoVisible = false;
+    exitFullScreenIfNeeded();
+  }
+
+  // Toggle fullscreen for video container
+  function toggleFullScreen() {
+    const elem = document.getElementById('preview-box');
+    if (!document.fullscreenElement) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) { /* Safari */
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE11 */
+        elem.msRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  // Exit fullscreen if any
+  function exitFullScreenIfNeeded() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }
+</script>
 </body>
 </html>

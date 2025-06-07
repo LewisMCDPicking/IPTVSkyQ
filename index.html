@@ -7,7 +7,7 @@
     body { font-family: Arial, sans-serif; background: #00204a; color: white; padding: 20px; }
     h1 { color: #00b4ff; }
     #error { color: #ff6b6b; }
-    pre { background: #001d3d; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; }
+    pre { background: #001d3d; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
   <script>
     const corsProxy = 'https://cors-anywhere.herokuapp.com/';
     const m3uUrl = 'https://raw.githubusercontent.com/iptv-org/iptv/master/streams/uk.m3u';
-    const epgUrl = 'https://raw.githubusercontent.com/iptv-org/epg/master/guides/gb/freeview.xml';
+    const epgUrl = 'https://raw.githubusercontent.com/iptv-org/epg/master/guides/gb/sky.xml';
 
     async function fetchText(url) {
       const res = await fetch(corsProxy + url);

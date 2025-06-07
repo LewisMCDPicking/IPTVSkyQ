@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sky XMLTV Debug Viewer</title>
+  <title>UK Freeview XMLTV Debug Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -31,7 +31,7 @@
   </style>
 </head>
 <body>
-  <h1>Sky XMLTV Debug Viewer</h1>
+  <h1>UK Freeview XMLTV Debug Viewer</h1>
   <div id="log" class="log">Starting...</div>
   <div id="epg-container"></div>
 
@@ -41,8 +41,7 @@
     }
 
     async function fetchEPG() {
-      // ✅ Correct working EPG file
-      const url = 'https://cors-anywhere.herokuapp.com/https://iptv-org.github.io/epg/guides/gb/sky.com.xml';
+      const url = 'https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml';
       log('Fetching XML from: ' + url);
       const res = await fetch(url);
       if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
@@ -102,7 +101,7 @@
       let visibleCount = 0;
 
       Object.values(channels).forEach(channel => {
-        if (channel.programmes.length === 0) return; // Skip empty channels
+        if (channel.programmes.length === 0) return;
 
         const channelDiv = document.createElement('div');
         channelDiv.style.marginBottom = '20px';

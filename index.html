@@ -1,22 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Freeview IPTV + EPG Demo</title>
+  <meta charset="UTF-8" />
+  <title>Freeview IPTV + EPG Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #001d3d;
+      color: white;
+      padding: 20px;
+    }
+    #status {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    #error {
+      color: #ff6666;
+      margin-bottom: 10px;
+    }
+    pre {
+      background: #002f5a;
+      padding: 10px;
+      border-radius: 5px;
+      max-height: 300px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-  <h2>Freeview IPTV + EPG Demo</h2>
-  <div id="status"></div>
-  <div id="error" style="color:red;"></div>
-  <h3>M3U Playlist Preview:</h3>
-  <pre id="m3uPreview" style="max-height:300px; overflow:auto; background:#eee; padding:10px;"></pre>
-  <h3>EPG XML Preview:</h3>
-  <pre id="epgPreview" style="max-height:300px; overflow:auto; background:#eee; padding:10px;"></pre>
+  <h1>Freeview IPTV + EPG Demo</h1>
+  <div id="status">Starting...</div>
+  <div id="error"></div>
+
+  <h2>M3U Playlist Preview:</h2>
+  <pre id="m3uPreview">Loading...</pre>
+
+  <h2>EPG XML Preview:</h2>
+  <pre id="epgPreview">Loading...</pre>
 
   <script>
     async function fetchText(url) {
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
+      if (!res.ok) throw new Error(`Network response was not ok: ${res.status} ${res.statusText}`);
       return await res.text();
     }
 
@@ -27,18 +53,26 @@
       const epgPreview = document.getElementById('epgPreview');
 
       try {
+        console.log('Fetching M3U playlist...');
         status.textContent = 'Fetching M3U playlist...';
         const m3uText = await fetchText('https://raw.githubusercontent.com/iptv-org/iptv/master/streams/uk.m3u');
+        console.log('M3U playlist fetched');
         m3uPreview.textContent = m3uText.slice(0, 1000) + (m3uText.length > 1000 ? '\n... (truncated)' : '');
 
+        console.log('Fetching EPG XML...');
         status.textContent = 'Fetching EPG XML...';
         const epgText = await fetchText('https://raw.githubusercontent.com/iptv-org/epg/master/guides/gb/freeview.xml');
+        console.log('EPG XML fetched');
         epgPreview.textContent = epgText.slice(0, 1000) + (epgText.length > 1000 ? '\n... (truncated)' : '');
 
         status.textContent = 'Data loaded successfully!';
+        error.textContent = '';
       } catch (err) {
+        console.error('Error occurred:', err);
         error.textContent = 'Error loading data: ' + err.message;
         status.textContent = '';
+        m3uPreview.textContent = '';
+        epgPreview.textContent = '';
       }
     }
 

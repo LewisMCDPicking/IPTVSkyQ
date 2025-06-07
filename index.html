@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple EPG Viewer with Error Display (CORS Proxy)</title>
+  <title>EPG Debug Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -19,20 +19,33 @@
       margin-bottom: 3px;
     }
     #epg-container {
-      white-space: pre-wrap; /* keeps formatting for errors */
+      white-space: pre-wrap;
+    }
+    .log {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <h1>Sky XMLTV Guide Preview</h1>
-  <div id="epg-container">Loading...</div>
+  <h1>Sky XMLTV Debug Viewer</h1>
+  <div id="log" class="log">Starting...</div>
+  <div id="epg-container"></div>
 
   <script>
+    function log(msg) {
+      document.getElementById('log').textContent += '\n' + msg;
+    }
+
     async function fetchEPG() {
-      // Using CORS proxy to avoid cross-origin issues
       const url = 'https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/knowledgejunkie/xmltv-lineups-uk/master/sky.xml';
+      log('Fetching XML from: ' + url);
       const res = await fetch(url);
       if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
+      log('Successfully fetched XML.');
       const xmlText = await res.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
@@ -41,26 +54,32 @@
         throw new Error('Error parsing XML');
       }
 
+      log('XML parsed successfully.');
       return xmlDoc;
     }
 
     function parseEPG(xmlDoc) {
       const channels = {};
+      log('Parsing channels...');
       xmlDoc.querySelectorAll('channel').forEach(channel => {
         const id = channel.getAttribute('id');
-        const name = channel.querySelector('display-name').textContent;
+        const name = channel.querySelector('display-name')?.textContent || 'Unnamed';
         channels[id] = { id, name, programmes: [] };
       });
 
+      log(`Found ${Object.keys(channels).length} channels.`);
+
+      log('Parsing programmes...');
       xmlDoc.querySelectorAll('programme').forEach(prog => {
         const channelId = prog.getAttribute('channel');
         if (channels[channelId]) {
-          const title = prog.querySelector('title').textContent;
+          const title = prog.querySelector('title')?.textContent || 'Untitled';
           const start = prog.getAttribute('start');
           channels[channelId].programmes.push({ title, start });
         }
       });
 
+      log('Finished parsing programmes.');
       return channels;
     }
 
@@ -75,10 +94,15 @@
     }
 
     function renderEPG(channels) {
+      log('Rendering EPG to screen...');
       const container = document.getElementById('epg-container');
       container.innerHTML = '';
 
+      let visibleCount = 0;
+
       Object.values(channels).forEach(channel => {
+        if (channel.programmes.length === 0) return; // Skip empty channels
+
         const channelDiv = document.createElement('div');
         channelDiv.style.marginBottom = '20px';
 
@@ -95,19 +119,20 @@
 
         channelDiv.appendChild(ul);
         container.appendChild(channelDiv);
+
+        visibleCount++;
       });
+
+      log(`Rendering complete. ${visibleCount} channels displayed.`);
     }
 
     async function init() {
-      const container = document.getElementById('epg-container');
-      container.textContent = 'Loading XMLTV EPG...';
-
       try {
         const xmlDoc = await fetchEPG();
         const channels = parseEPG(xmlDoc);
         renderEPG(channels);
       } catch (err) {
-        container.textContent = 'Failed to load EPG data: ' + err.message;
+        log('ERROR: ' + err.message);
       }
     }
 

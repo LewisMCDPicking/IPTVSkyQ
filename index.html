@@ -41,7 +41,8 @@
     }
 
     async function fetchEPG() {
-      const url = 'https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/knowledgejunkie/xmltv-lineups-uk/master/sky.xml';
+      // New working EPG source via proxy
+      const url = 'https://cors-anywhere.herokuapp.com/https://iptv-org.github.io/epg/guides/gb/sky.com.epg.xml';
       log('Fetching XML from: ' + url);
       const res = await fetch(url);
       if (!res.ok) throw new Error('Network response was not ok: ' + res.status);

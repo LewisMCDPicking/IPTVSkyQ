@@ -1,303 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Freeview IPTV with EPG & Streams</title>
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to right, #00204a, #003c8f);
-    color: white;
-    display: flex;
-    height: 100vh;
-  }
-  .sidebar {
-    width: 200px;
-    background: #001d3d;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  .menu-item {
-    font-size: 16px;
-    opacity: 0.7;
-    transition: 0.2s;
-    padding: 5px 10px;
-    border-left: 3px solid transparent;
-    cursor: pointer;
-  }
-  .menu-item:hover,
-  .menu-item.active {
-    background-color: #0051a2;
-    opacity: 1;
-    border-left: 3px solid #00b4ff;
-  }
-  .main {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-  }
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #00b4ff;
-  }
-  #time {
-    font-size: 18px;
-    margin-right: 10px;
-  }
-  .preview-box {
-    margin-top: 20px;
-    width: 320px;
-    height: 180px;
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: #ccc;
-  }
-  video {
-    width: 320px;
-    height: 180px;
-    background: black;
-  }
-  .epg {
-    margin-top: 30px;
-    background: rgba(255,255,255,0.05);
-    padding: 15px;
-    border-radius: 8px;
-    overflow-y: auto;
-    max-height: 60vh;
-  }
-  .epg table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .epg th, .epg td {
-    padding: 10px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .epg th {
-    background: rgba(255,255,255,0.1);
-  }
-  .epg td {
-    background: rgba(255,255,255,0.05);
-  }
-  .channel-name {
-    cursor: pointer;
-    color: #00b4ff;
-    text-decoration: underline;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>SkyQ Layout with IPTV + EPG</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #00204a, #003c8f);
+      color: white;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: #001d3d;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+    }
+    .channel-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+    .channel-item:hover, .channel-item.active {
+      background-color: #0051a2;
+      opacity: 1;
+      border-left: 3px solid #00b4ff;
+    }
+    /* Main content */
+    .main {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #00b4ff;
+    }
+    #time {
+      font-size: 18px;
+      margin-right: 10px;
+    }
+    .preview-box {
+      background: black;
+      height: 180px;
+      width: 320px;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 10px #00b4ff;
+    }
+    video#player {
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+    .epg {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .epg table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+    .epg th, .epg td {
+      padding: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
+      font-size: 14px;
+    }
+    .epg th {
+      background: rgba(255,255,255,0.1);
+    }
+    .epg td {
+      background: rgba(255,255,255,0.05);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-
-<div class="sidebar">
-  <div class="menu-item">Home</div>
-  <div class="menu-item active">TV Guide</div>
-  <div class="menu-item">Recordings</div>
-  <div class="menu-item">Catch up TV</div>
-  <div class="menu-item">On demand</div>
-  <div class="menu-item">Best of Sky</div>
-  <div class="menu-item">Sky Cinema</div>
-  <div class="menu-item">Sky Store</div>
-</div>
-
-<div class="main">
-  <div class="top-bar">
-    <div class="logo">sky</div>
-    <div id="time">--:--</div>
+  <div class="sidebar" id="channelList">
+    <div><strong>Channels</strong></div>
+    <!-- Channels injected here -->
   </div>
 
-  <div class="preview-box">
-    <video id="player" controls autoplay muted></video>
+  <div class="main">
+    <div class="top-bar">
+      <div class="logo">sky</div>
+      <div id="time">--:--</div>
+    </div>
+
+    <div class="preview-box">
+      <video id="player" controls muted autoplay></video>
+    </div>
+
+    <div class="epg" id="epgContainer">
+      <h3>TV Guide</h3>
+      <div id="epgContent">Loading EPG...</div>
+    </div>
   </div>
 
-  <div class="epg">
-    <h3>TV Guide</h3>
-    <table id="epg-table">
-      <thead>
-        <tr><th>Channel</th><th>Now Showing</th><th>Next</th></tr>
-      </thead>
-      <tbody>
-        <!-- Filled dynamically -->
-      </tbody>
-    </table>
-  </div>
-</div>
+  <script>
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+    const m3uUrl = corsProxy + 'https://iptv-org.github.io/iptv/index.uk.m3u';
+    const epgUrl = corsProxy + 'https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml';
 
-<script>
-const m3uUrl = 'https://iptv-org.github.io/iptv/index.uk.m3u';
-const epgUrl = 'https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml';
+    let channels = []; // {name, streamUrl, tvgId}
+    let epgData = {}; // { channelId: [{start, stop, title}] }
+    let hls;
 
-function updateTime() {
-  const now = new Date();
-  let hours = now.getHours();
-  let minutes = now.getMinutes();
-  const ampm = hours >= 12 ? 'pm' : 'am';
-  hours = hours % 12 || 12;
-  minutes = minutes < 10 ? '0' + minutes : minutes;
-  document.getElementById('time').textContent = `${hours}:${minutes}${ampm}`;
-}
-
-updateTime();
-setInterval(updateTime, 10000);
-
-// Parse M3U playlist, return array of {name, tvgId, url}
-async function fetchM3U(url) {
-  const res = await fetch(url);
-  const text = await res.text();
-  const lines = text.split('\n');
-  const channels = [];
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith('#EXTINF')) {
-      const infoLine = lines[i];
-      const streamUrl = lines[i+1];
-      // parse tvg-id and name
-      const tvgIdMatch = infoLine.match(/tvg-id="([^"]+)"/);
-      const tvgNameMatch = infoLine.match(/,(.*)$/);
-      const tvgId = tvgIdMatch ? tvgIdMatch[1] : null;
-      const name = tvgNameMatch ? tvgNameMatch[1].trim() : 'Unknown';
-      channels.push({ name, tvgId, url: streamUrl });
-      i++; // skip url line
+    // Update time display
+    function updateTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12 || 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      document.getElementById('time').textContent = `${hours}:${minutes}${ampm}`;
     }
-  }
-  return channels;
-}
+    updateTime();
+    setInterval(updateTime, 10000);
 
-// Parse XMLTV EPG, return array of channels and programmes
-async function fetchEPG(url) {
-  const res = await fetch(url);
-  const text = await res.text();
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(text, 'application/xml');
-
-  // Channels
-  const channelNodes = xml.querySelectorAll('channel');
-  const channels = {};
-  channelNodes.forEach(ch => {
-    const id = ch.getAttribute('id');
-    const displayNameNode = ch.querySelector('display-name');
-    const displayName = displayNameNode ? displayNameNode.textContent : id;
-    channels[id] = { id, displayName, programmes: [] };
-  });
-
-  // Programmes
-  const programmeNodes = xml.querySelectorAll('programme');
-  programmeNodes.forEach(pr => {
-    const channel = pr.getAttribute('channel');
-    const titleNode = pr.querySelector('title');
-    const title = titleNode ? titleNode.textContent : 'No title';
-    const start = pr.getAttribute('start'); // e.g. 20250607083000 +0000
-    const stop = pr.getAttribute('stop');
-    if (channels[channel]) {
-      channels[channel].programmes.push({ title, start, stop });
+    // Parse M3U playlist
+    async function fetchM3U() {
+      const res = await fetch(m3uUrl);
+      if (!res.ok) throw new Error('Failed to fetch M3U');
+      const text = await res.text();
+      parseM3U(text);
     }
-  });
 
-  return Object.values(channels);
-}
-
-// Find best matching channel from EPG for a given M3U channel
-function findMatchingEPGChannel(m3uChannel, epgChannels) {
-  // Simple match by name ignoring case and spaces
-  const nameToFind = m3uChannel.name.toLowerCase().replace(/\s+/g, '');
-  return epgChannels.find(epgCh => epgCh.displayName.toLowerCase().replace(/\s+/g, '').includes(nameToFind));
-}
-
-function parseDateTime(dt) {
-  // XMLTV datetime format: YYYYMMDDHHMMSS +0000
-  // Convert to JS Date
-  const dtClean = dt.split(' ')[0]; // strip timezone
-  const year = parseInt(dtClean.substr(0,4));
-  const month = parseInt(dtClean.substr(4,2)) - 1;
-  const day = parseInt(dtClean.substr(6,2));
-  const hour = parseInt(dtClean.substr(8,2));
-  const minute = parseInt(dtClean.substr(10,2));
-  const second = parseInt(dtClean.substr(12,2));
-  return new Date(Date.UTC(year, month, day, hour, minute, second));
-}
-
-function getCurrentAndNextProgrammes(programmes) {
-  const now = new Date();
-  // sort programmes by start time ascending
-  programmes.sort((a,b) => parseDateTime(a.start) - parseDateTime(b.start));
-  let current = null;
-  let next = null;
-
-  for (let i = 0; i < programmes.length; i++) {
-    const start = parseDateTime(programmes[i].start);
-    const stop = parseDateTime(programmes[i].stop);
-    if (now >= start && now < stop) {
-      current = programmes[i];
-      if (i + 1 < programmes.length) {
-        next = programmes[i+1];
+    function parseM3U(data) {
+      channels = [];
+      const lines = data.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('#EXTINF')) {
+          const tvgMatch = line.match(/tvg-id="([^"]+)"/);
+          const tvgId = tvgMatch ? tvgMatch[1] : null;
+          const nameMatch = line.match(/,(.*)$/);
+          const name = nameMatch ? nameMatch[1] : 'No Name';
+          const streamUrl = lines[i+1] ? lines[i+1].trim() : null;
+          if (streamUrl && streamUrl.startsWith('http')) {
+            channels.push({name, streamUrl, tvgId});
+          }
+        }
       }
-      break;
+      renderChannels();
     }
-  }
 
-  return { current, next };
-}
+    function renderChannels() {
+      const container = document.getElementById('channelList');
+      container.querySelectorAll('.channel-item').forEach(e => e.remove());
 
-function createTableRow(channel, streamUrl, currentProgram, nextProgram) {
-  const tr = document.createElement('tr');
-
-  const tdChannel = document.createElement('td');
-  tdChannel.textContent = channel.displayName;
-  tdChannel.classList.add('channel-name');
-  tdChannel.onclick = () => {
-    const player = document.getElementById('player');
-    player.src = streamUrl;
-    player.play();
-  };
-  tr.appendChild(tdChannel);
-
-  const tdCurrent = document.createElement('td');
-  tdCurrent.textContent = currentProgram ? currentProgram.title : 'No data';
-  tr.appendChild(tdCurrent);
-
-  const tdNext = document.createElement('td');
-  tdNext.textContent = nextProgram ? nextProgram.title : 'No data';
-  tr.appendChild(tdNext);
-
-  return tr;
-}
-
-async function init() {
-  try {
-    const [channelsM3U, epgChannels] = await Promise.all([fetchM3U(m3uUrl), fetchEPG(epgUrl)]);
-
-    const tbody = document.querySelector('#epg-table tbody');
-    tbody.innerHTML = '';
-
-    let count = 0;
-    for (const chM3U of channelsM3U) {
-      if (count >= 20) break; // limit to 20 channels initially
-      const epgCh = findMatchingEPGChannel(chM3U, epgChannels);
-      if (!epgCh) continue;
-
-      const { current, next } = getCurrentAndNextProgrammes(epgCh.programmes);
-      const tr = createTableRow(epgCh, chM3U.url, current, next);
-      tbody.appendChild(tr);
-      count++;
+      channels.forEach((channel, i) => {
+        const div = document.createElement('div');
+        div.textContent = channel.name;
+        div.className = 'channel-item';
+        div.onclick = () => {
+          document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+          div.classList.add('active');
+          playStream(channel.streamUrl);
+          renderEPGForChannel(channel.tvgId || channel.name);
+        };
+        container.appendChild(div);
+      });
+      // Select first channel automatically
+      if(channels.length) {
+        container.children[1].click();
+      }
     }
-  } catch (e) {
-    console.error('Error initializing:', e);
-  }
-}
 
-init();
-</script>
+    // Play stream with hls.js support
+    function playStream(url) {
+      const video = document.getElementById('player');
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      if (Hls.isSupported() && url.endsWith('.m3u8')) {
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.play();
+      } else {
+        video.src = url;
+        video.play();
+      }
+    }
 
+    // Fetch and parse EPG XMLTV
+    async function fetchEPG() {
+      const res = await fetch(epgUrl);
+      if (!res.ok) throw new Error('Failed to fetch EPG');
+      const text = await res.text();
+      parseEPG(text);
+    }
+
+    function parseEPG(xmlText) {
+      epgData = {};
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, "application/xml");
+      const channelNodes = xml.querySelectorAll('channel');
+      channelNodes.forEach(ch => {
+        const id = ch.getAttribute('id');
+        epgData[id] = [];
+      });
+      const progNodes = xml.querySelectorAll('programme');
+      progNodes.forEach(prog => {
+        const channelId = prog.getAttribute('channel');
+        const titleNode = prog.querySelector('title');
+        const start = prog.getAttribute('start');
+        const stop = prog.getAttribute('stop');
+        if (!epgData[channelId]) epgData[channelId] = [];
+        epgData[channelId].push({
+          title: titleNode ? titleNode.textContent : 'No title',
+          start,
+          stop
+        });
+      });
+    }
+
+    // Render EPG for selected channel
+    function renderEPGForChannel(tvgId) {
+      const container = document.getElementById('epgContent');
+      container.innerHTML = '';
+
+      if (!tvgId || !epgData[tvgId]) {
+        container.textContent = 'No EPG data for this channel.';
+        return;
+      }
+
+      const progs = epgData[tvgId];
+      if (!progs.length) {
+        container.textContent = 'No programmes available.';
+        return;
+      }
+
+      const table = document.createElement('table');
+      const header = document.createElement('tr');
+      ['Start Time', 'Programme'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        header.appendChild(th);
+      });
+      table.appendChild(header);
+
+      progs.slice(0, 10).forEach(p => {
+        const tr = document.createElement('tr');
+        const startDate = new Date(p.start.substr(0,4)+'-'+p.start.substr(4,2)+'-'+p.start.substr(6,2)+'T'+p.start.substr(8,2)+':'+p.start.substr(10,2));
+        const timeStr = startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const tdStart = document.createElement('td');
+        tdStart.textContent = timeStr;
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = p.title;
+        tr.appendChild(tdStart);
+        tr.appendChild(tdTitle);
+        table.appendChild(tr);
+      });
+
+      container.appendChild(table);
+    }
+
+    // Start everything
+    (async () => {
+      try {
+        await fetchM3U();
+        await fetchEPG();
+        console.log('Loaded channels and EPG');
+      } catch (e) {
+        document.getElementById('epgContent').textContent = 'Error loading data: ' + e.message;
+        console.error(e);
+      }
+    })();
+  </script>
 </body>
 </html>

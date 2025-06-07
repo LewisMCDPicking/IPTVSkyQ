@@ -4,50 +4,55 @@
   <meta charset="UTF-8" />
   <title>Freeview IPTV + EPG Demo</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #001d3d; color: white; padding: 20px; }
-    pre { white-space: pre-wrap; background: #003060; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; }
+    body { font-family: Arial, sans-serif; background: #00204a; color: white; padding: 20px; }
+    h1 { color: #00b4ff; }
+    #error { color: #ff6b6b; }
+    pre { background: #001d3d; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; }
   </style>
 </head>
 <body>
   <h1>Freeview IPTV + EPG Demo</h1>
   <div id="status">Loading...</div>
-
-  <h2>M3U Playlist</h2>
-  <pre id="m3u"></pre>
-
-  <h2>EPG XML</h2>
-  <pre id="epg"></pre>
+  <div id="error"></div>
+  <h2>M3U Playlist Preview:</h2>
+  <pre id="m3uPreview"></pre>
+  <h2>EPG XML Preview:</h2>
+  <pre id="epgPreview"></pre>
 
   <script>
-    const corsProxy = 'https://thingproxy.freeboard.io/fetch/';
-    const m3uUrl = corsProxy + 'https://iptv-org.github.io/iptv/index.uk.m3u';
-    const epgUrl = corsProxy + 'https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml';
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+    const m3uUrl = 'https://raw.githubusercontent.com/iptv-org/iptv/master/streams/uk.m3u';
+    const epgUrl = 'https://raw.githubusercontent.com/iptv-org/epg/master/guides/gb/freeview.xml';
 
-    const statusEl = document.getElementById('status');
-    const m3uEl = document.getElementById('m3u');
-    const epgEl = document.getElementById('epg');
+    async function fetchText(url) {
+      const res = await fetch(corsProxy + url);
+      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
+      return await res.text();
+    }
 
-    async function fetchData() {
+    async function loadData() {
+      const status = document.getElementById('status');
+      const error = document.getElementById('error');
+      const m3uPreview = document.getElementById('m3uPreview');
+      const epgPreview = document.getElementById('epgPreview');
+
       try {
-        statusEl.textContent = 'Fetching M3U playlist...';
-        const m3uResponse = await fetch(m3uUrl);
-        if (!m3uResponse.ok) throw new Error('Failed to fetch M3U: ' + m3uResponse.status);
-        const m3uText = await m3uResponse.text();
-        m3uEl.textContent = m3uText;
+        status.textContent = 'Fetching M3U playlist...';
+        const m3uText = await fetchText(m3uUrl);
+        m3uPreview.textContent = m3uText.slice(0, 1000) + (m3uText.length > 1000 ? '\n... (truncated)' : '');
 
-        statusEl.textContent = 'Fetching EPG XML...';
-        const epgResponse = await fetch(epgUrl);
-        if (!epgResponse.ok) throw new Error('Failed to fetch EPG: ' + epgResponse.status);
-        const epgText = await epgResponse.text();
-        epgEl.textContent = epgText;
+        status.textContent = 'Fetching EPG XML...';
+        const epgText = await fetchText(epgUrl);
+        epgPreview.textContent = epgText.slice(0, 1000) + (epgText.length > 1000 ? '\n... (truncated)' : '');
 
-        statusEl.textContent = 'Data loaded successfully.';
+        status.textContent = 'Data loaded successfully!';
       } catch (err) {
-        statusEl.textContent = 'Error: ' + err.message;
+        error.textContent = 'Error loading data: ' + err.message;
+        status.textContent = '';
       }
     }
 
-    fetchData();
+    loadData();
   </script>
 </body>
 </html>

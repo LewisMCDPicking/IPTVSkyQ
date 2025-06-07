@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple EPG Viewer with Error Display</title>
+  <title>Simple EPG Viewer with Error Display (CORS Proxy)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,14 +29,14 @@
 
   <script>
     async function fetchEPG() {
-      const url = 'https://raw.githubusercontent.com/knowledgejunkie/xmltv-lineups-uk/master/sky.xml';
+      // Using CORS proxy to avoid cross-origin issues
+      const url = 'https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/knowledgejunkie/xmltv-lineups-uk/master/sky.xml';
       const res = await fetch(url);
       if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
       const xmlText = await res.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
 
-      // Check for XML parse errors
       if (xmlDoc.querySelector('parsererror')) {
         throw new Error('Error parsing XML');
       }
@@ -91,3 +91,27 @@
           const li = document.createElement('li');
           li.textContent = `${formatDate(prog.start)} - ${prog.title}`;
           ul.appendChild(li);
+        });
+
+        channelDiv.appendChild(ul);
+        container.appendChild(channelDiv);
+      });
+    }
+
+    async function init() {
+      const container = document.getElementById('epg-container');
+      container.textContent = 'Loading XMLTV EPG...';
+
+      try {
+        const xmlDoc = await fetchEPG();
+        const channels = parseEPG(xmlDoc);
+        renderEPG(channels);
+      } catch (err) {
+        container.textContent = 'Failed to load EPG data: ' + err.message;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

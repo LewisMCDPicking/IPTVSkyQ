@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SkyQ Layout Clone with M3U Playlist</title>
+  <title>SkyQ Layout Clone with Categories</title>
   <style>
     body {
       margin: 0;
@@ -15,21 +15,23 @@
 
     /* Sidebar */
     .sidebar {
-      width: 200px;
+      width: 220px;
       background: #001d3d;
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 10px;
+      box-sizing: border-box;
     }
 
     .menu-item {
       font-size: 16px;
       opacity: 0.7;
       transition: 0.2s;
-      padding: 5px 10px;
+      padding: 8px 10px;
       border-left: 3px solid transparent;
       cursor: pointer;
+      user-select: none;
     }
 
     .menu-item:hover,
@@ -37,6 +39,33 @@
       background-color: #0051a2;
       opacity: 1;
       border-left: 3px solid #00b4ff;
+    }
+
+    /* Submenu */
+    .submenu {
+      background: #00305a;
+      margin-top: 5px;
+      border-radius: 4px;
+      padding: 5px 10px;
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .submenu-item {
+      font-size: 14px;
+      opacity: 0.8;
+      padding: 5px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .submenu-item:hover,
+    .submenu-item.active {
+      background-color: #0070e0;
+      opacity: 1;
     }
 
     /* Main content */
@@ -112,6 +141,7 @@
       cursor: pointer;
       user-select: none;
     }
+
     .epg td.channel-name:hover {
       text-decoration: underline;
     }
@@ -125,8 +155,13 @@
 </head>
 <body>
   <div class="sidebar">
-    <div class="menu-item">Home</div>
-    <div class="menu-item active">TV Guide</div>
+    <div class="menu-item" id="homeMenu">Home</div>
+
+    <div class="menu-item active" id="tvGuideMenu">TV Guide ▼</div>
+    <div class="submenu" id="tvGuideSubmenu">
+      <!-- Categories go here -->
+    </div>
+
     <div class="menu-item">Recordings</div>
     <div class="menu-item">Catch up TV</div>
     <div class="menu-item">On demand</div>
@@ -175,10 +210,75 @@
     updateTime();
     setInterval(updateTime, 10000);
 
-    // Your Pastebin raw URL:
+    // Pastebin raw URL and CORS proxy
     const pastebinRawUrl = 'https://pastebin.com/raw/sQHRDkA0';
-    // CORS proxy URL to avoid cross-origin issues:
     const corsProxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(pastebinRawUrl);
+
+    let allChannels = [];
+    let currentCategory = 'All Channels';
+
+    // Sample category logic based on channel name - you can customize
+    function getCategory(channelName) {
+      channelName = channelName.toLowerCase();
+
+      if (channelName.includes('bbc') || channelName.includes('itv') || channelName.includes('channel 4') || channelName.includes('channel 5') || channelName.includes('sky')) {
+        return 'Entertainment';
+      }
+      if (channelName.includes('kids') || channelName.includes('cartoon') || channelName.includes('nick') || channelName.includes('disney')) {
+        return 'Kids';
+      }
+      if (channelName.includes('music') || channelName.includes('mtv') || channelName.includes('radio') || channelName.includes('classic fm')) {
+        return 'Music';
+      }
+      if (channelName.includes('sport') || channelName.includes('sky sports') || channelName.includes('espn') || channelName.includes('motorsport')) {
+        return 'Sports';
+      }
+      return 'Other';
+    }
+
+    // Build the category submenu
+    function buildCategoryMenu() {
+      const submenu = document.getElementById('tvGuideSubmenu');
+      submenu.innerHTML = '';
+
+      const categories = ['All Channels', 'Entertainment', 'Kids', 'Music', 'Sports', 'Other'];
+
+      categories.forEach(cat => {
+        const div = document.createElement('div');
+        div.textContent = cat;
+        div.className = 'submenu-item';
+        if (cat === currentCategory) div.classList.add('active');
+        div.onclick = () => {
+          currentCategory = cat;
+          filterChannels();
+          updateCategoryActive();
+        };
+        submenu.appendChild(div);
+      });
+
+      submenu.style.display = 'flex'; // show submenu by default
+    }
+
+    function updateCategoryActive() {
+      const items = document.querySelectorAll('.submenu-item');
+      items.forEach(item => {
+        if (item.textContent === currentCategory) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    function filterChannels() {
+      let filtered;
+      if (currentCategory === 'All Channels') {
+        filtered = allChannels;
+      } else {
+        filtered = allChannels.filter(ch => ch.category === currentCategory);
+      }
+      buildChannelList(filtered);
+    }
 
     async function fetchAndParseM3U() {
       try {
@@ -186,8 +286,9 @@
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         const m3uText = data.contents;
-        const channels = parseM3U(m3uText);
-        buildChannelList(channels);
+        allChannels = parseM3U(m3uText);
+        buildCategoryMenu();
+        filterChannels();
       } catch (error) {
         console.error('Failed to load channels:', error);
         alert('Failed to load channels: ' + error.message);
@@ -207,11 +308,13 @@
           const tvgNameMatch = line.match(/tvg-name="([^"]+)"/);
           const logoMatch = line.match(/tvg-logo="([^"]+)"/);
 
+          const channelName = tvgNameMatch ? tvgNameMatch[1] : (nameMatch ? nameMatch[1] : 'Unknown');
           currentChannel = {
             id: tvgIdMatch ? tvgIdMatch[1] : null,
-            name: tvgNameMatch ? tvgNameMatch[1] : (nameMatch ? nameMatch[1] : 'Unknown'),
+            name: channelName,
             logo: logoMatch ? logoMatch[1] : null,
-            url: ''
+            url: '',
+            category: getCategory(channelName),
           };
         } else if (line && !line.startsWith('#') && currentChannel) {
           currentChannel.url = line;
@@ -265,6 +368,18 @@
       video.setAttribute('playsinline', ''); // For mobile support
       previewBox.appendChild(video);
     }
+
+    // Toggle submenu on "TV Guide" click
+    document.getElementById('tvGuideMenu').addEventListener('click', () => {
+      const submenu = document.getElementById('tvGuideSubmenu');
+      if (submenu.style.display === 'flex') {
+        submenu.style.display = 'none';
+        document.getElementById('tvGuideMenu').textContent = 'TV Guide ▶';
+      } else {
+        submenu.style.display = 'flex';
+        document.getElementById('tvGuideMenu').textContent = 'TV Guide ▼';
+      }
+    });
 
     // Load channels on page load
     fetchAndParseM3U();

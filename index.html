@@ -4,20 +4,8 @@
   <meta charset="UTF-8" />
   <title>Freeview IPTV + EPG Demo</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #001d3d;
-      color: white;
-      padding: 20px;
-    }
-    pre {
-      white-space: pre-wrap;
-      background: #003060;
-      padding: 10px;
-      border-radius: 5px;
-      max-height: 300px;
-      overflow: auto;
-    }
+    body { font-family: Arial, sans-serif; background: #001d3d; color: white; padding: 20px; }
+    pre { white-space: pre-wrap; background: #003060; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; }
   </style>
 </head>
 <body>
@@ -31,9 +19,9 @@
   <pre id="epg"></pre>
 
   <script>
-    const corsProxy = 'https://api.allorigins.win/raw?url=';
-    const m3uUrl = 'https://iptv-org.github.io/iptv/index.uk.m3u';
-    const epgUrl = 'https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml';
+    const corsProxy = 'https://thingproxy.freeboard.io/fetch/';
+    const m3uUrl = corsProxy + 'https://iptv-org.github.io/iptv/index.uk.m3u';
+    const epgUrl = corsProxy + 'https://raw.githubusercontent.com/dp247/Freeview-EPG/master/epg.xml';
 
     const statusEl = document.getElementById('status');
     const m3uEl = document.getElementById('m3u');
@@ -42,13 +30,13 @@
     async function fetchData() {
       try {
         statusEl.textContent = 'Fetching M3U playlist...';
-        const m3uResponse = await fetch(corsProxy + encodeURIComponent(m3uUrl));
+        const m3uResponse = await fetch(m3uUrl);
         if (!m3uResponse.ok) throw new Error('Failed to fetch M3U: ' + m3uResponse.status);
         const m3uText = await m3uResponse.text();
         m3uEl.textContent = m3uText;
 
         statusEl.textContent = 'Fetching EPG XML...';
-        const epgResponse = await fetch(corsProxy + encodeURIComponent(epgUrl));
+        const epgResponse = await fetch(epgUrl);
         if (!epgResponse.ok) throw new Error('Failed to fetch EPG: ' + epgResponse.status);
         const epgText = await epgResponse.text();
         epgEl.textContent = epgText;

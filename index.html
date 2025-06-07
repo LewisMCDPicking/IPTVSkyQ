@@ -1,388 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SkyQ Layout Clone with Categories</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #00204a, #003c8f);
-      color: white;
-      display: flex;
-      height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      background: #001d3d;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-sizing: border-box;
-    }
-
-    .menu-item {
-      font-size: 16px;
-      opacity: 0.7;
-      transition: 0.2s;
-      padding: 8px 10px;
-      border-left: 3px solid transparent;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .menu-item:hover,
-    .menu-item.active {
-      background-color: #0051a2;
-      opacity: 1;
-      border-left: 3px solid #00b4ff;
-    }
-
-    /* Submenu */
-    .submenu {
-      background: #00305a;
-      margin-top: 5px;
-      border-radius: 4px;
-      padding: 5px 10px;
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .submenu-item {
-      font-size: 14px;
-      opacity: 0.8;
-      padding: 5px;
-      cursor: pointer;
-      border-radius: 3px;
-    }
-
-    .submenu-item:hover,
-    .submenu-item.active {
-      background-color: #0070e0;
-      opacity: 1;
-    }
-
-    /* Main content */
-    .main {
-      flex: 1;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: #00b4ff;
-    }
-
-    #time {
-      font-size: 18px;
-      margin-right: 10px;
-    }
-
-    .preview-box {
-      margin-top: 20px;
-      width: 100%;
-      height: 300px;
-      background: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .epg {
-      margin-top: 30px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 15px;
-      border-radius: 8px;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .epg table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      word-wrap: break-word;
-    }
-
-    .epg th,
-    .epg td {
-      padding: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: left;
-    }
-
-    .epg th {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .epg td {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .epg td.channel-name {
-      color: #00b4ff;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .epg td.channel-name:hover {
-      text-decoration: underline;
-    }
-
-    video {
-      max-width: 100%;
-      max-height: 100%;
-      background: black;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SkyQ Layout with IPTV</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #00204a, #003c8f);
+    color: white;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: #001d3d;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .menu-item {
+    font-size: 16px;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    opacity: 0.7;
+    margin-bottom: 5px;
+  }
+  .menu-item:hover, .menu-item.active {
+    background-color: #0051a2;
+    opacity: 1;
+    border-left: 3px solid #00b4ff;
+  }
+  /* Submenu */
+  .submenu {
+    margin-left: 15px;
+    margin-bottom: 15px;
+  }
+  .submenu-item {
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 5px 10px;
+    border-left: 3px solid transparent;
+  }
+  .submenu-item:hover, .submenu-item.active {
+    background-color: #004080;
+    opacity: 1;
+    border-left: 3px solid #0099ff;
+  }
+  /* Main */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: hidden;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00b4ff;
+  }
+  #time {
+    font-size: 18px;
+  }
+  /* Video preview */
+  .preview-box {
+    margin-top: 20px;
+    background: black;
+    height: 250px;
+    max-width: 600px;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    background: black;
+  }
+  /* EPG table */
+  .epg {
+    margin-top: 20px;
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 8px;
+  }
+  .epg table {
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+  }
+  .epg th, .epg td {
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 14px;
+  }
+  .epg th {
+    background: rgba(255,255,255,0.1);
+  }
+  .channel-name {
+    cursor: pointer;
+    color: #00b4ff;
+    text-decoration: underline;
+  }
+  .channel-name:hover {
+    color: #66ccff;
+  }
+</style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="menu-item" id="homeMenu">Home</div>
 
-    <div class="menu-item active" id="tvGuideMenu">TV Guide ▼</div>
-    <div class="submenu" id="tvGuideSubmenu">
-      <!-- Categories go here -->
-    </div>
+<div class="sidebar">
+  <div class="menu-item active" id="tvGuideBtn">TV Guide</div>
+  <div id="categoryList" class="submenu"></div>
+</div>
 
-    <div class="menu-item">Recordings</div>
-    <div class="menu-item">Catch up TV</div>
-    <div class="menu-item">On demand</div>
-    <div class="menu-item">Best of Sky</div>
-    <div class="menu-item">Sky Cinema</div>
-    <div class="menu-item">Sky Store</div>
+<div class="main">
+  <div class="top-bar">
+    <div class="logo">sky</div>
+    <div id="time">--:--</div>
   </div>
 
-  <div class="main">
-    <div class="top-bar">
-      <div class="logo">sky</div>
-      <div id="time">--:--</div>
-    </div>
-
-    <div class="preview-box">Select a channel to watch</div>
-
-    <div class="epg">
-      <h3>TV Guide</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Channel</th>
-            <th>11:30am</th>
-            <th>12:00pm</th>
-            <th>12:30pm</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Channels will load here -->
-        </tbody>
-      </table>
-    </div>
+  <div class="preview-box">
+    <video id="videoPlayer" controls autoplay muted></video>
   </div>
 
-  <script>
-    // Show current time in top right
-    function updateTime() {
-      const now = new Date();
-      let hours = now.getHours();
-      let minutes = now.getMinutes();
-      const ampm = hours >= 12 ? 'pm' : 'am';
-      hours = hours % 12 || 12;
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      document.getElementById('time').textContent = `${hours}:${minutes}${ampm}`;
+  <div class="epg">
+    <h3>Program Guide</h3>
+    <table id="epgTable">
+      <thead>
+        <tr><th>Time</th><th>Program</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const M3U_URL = 'http://s1.shortdns.xyz/get.php?username=7PMXVWE3KR&password=tq70h4Hu1N&type=m3u_plus&output=ts';
+const EPG_URL = 'http://s1.shortdns.xyz/xmltv.php?username=7PMXVWE3KR&password=tq70h4Hu1N';
+
+// Using CORS proxy
+const CORS_PROXY = 'https://api.allorigins.win/get?url=';
+
+let channels = [];  // Parsed channel list
+let epgData = {};   // Parsed EPG programs by channel id
+
+const sidebarCategories = {};  // category: [channels...]
+
+const videoPlayer = document.getElementById('videoPlayer');
+const epgTableBody = document.querySelector('#epgTable tbody');
+const categoryList = document.getElementById('categoryList');
+
+// Time update
+function updateTime() {
+  const now = new Date();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12 || 12;
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  document.getElementById('time').textContent = `${hours}:${minutes}${ampm}`;
+}
+updateTime();
+setInterval(updateTime, 10000);
+
+// Fetch helper with CORS proxy
+async function fetchCORS(url) {
+  const encodedUrl = encodeURIComponent(url);
+  const proxyUrl = `${CORS_PROXY}${encodedUrl}`;
+  const response = await fetch(proxyUrl);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data.contents;
+}
+
+// Parse M3U playlist
+function parseM3U(data) {
+  const lines = data.split('\n').map(l => l.trim());
+  const parsed = [];
+  let currentChannel = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.startsWith('#EXTINF')) {
+      // Extract channel info
+      const nameMatch = line.match(/,(.+)$/);
+      const groupMatch = line.match(/group-title="([^"]+)"/i);
+      const tvgIdMatch = line.match(/tvg-id="([^"]+)"/i);
+      currentChannel = {
+        name: nameMatch ? nameMatch[1].trim() : 'No Name',
+        group: groupMatch ? groupMatch[1] : 'Ungrouped',
+        tvgId: tvgIdMatch ? tvgIdMatch[1] : null,
+        url: null,
+      };
+      parsed.push(currentChannel);
+    } else if (line && !line.startsWith('#')) {
+      if (currentChannel) currentChannel.url = line.trim();
     }
-    updateTime();
-    setInterval(updateTime, 10000);
+  }
+  return parsed;
+}
 
-    // Pastebin raw URL and CORS proxy
-    const pastebinRawUrl = 'https://pastebin.com/raw/sQHRDkA0';
-    const corsProxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(pastebinRawUrl);
+// Parse XMLTV EPG
+function parseEPG(xmlText) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+  const programsByChannel = {};
 
-    let allChannels = [];
-    let currentCategory = 'All Channels';
+  const programs = xmlDoc.querySelectorAll('programme');
+  programs.forEach(prog => {
+    const channel = prog.getAttribute('channel');
+    const startRaw = prog.getAttribute('start'); // Format: 20230617113000 +0000
+    const start = new Date(
+      startRaw.slice(0,4), // year
+      parseInt(startRaw.slice(4,6))-1, // month zero-based
+      startRaw.slice(6,8),
+      startRaw.slice(8,10),
+      startRaw.slice(10,12),
+      startRaw.slice(12,14)
+    );
+    const title = prog.querySelector('title') ? prog.querySelector('title').textContent : '';
+    if (!programsByChannel[channel]) programsByChannel[channel] = [];
+    programsByChannel[channel].push({start, title});
+  });
 
-    // Sample category logic based on channel name - you can customize
-    function getCategory(channelName) {
-      channelName = channelName.toLowerCase();
+  // Sort programs by start time
+  for (const ch in programsByChannel) {
+    programsByChannel[ch].sort((a,b) => a.start - b.start);
+  }
+  return programsByChannel;
+}
 
-      if (channelName.includes('bbc') || channelName.includes('itv') || channelName.includes('channel 4') || channelName.includes('channel 5') || channelName.includes('sky')) {
-        return 'Entertainment';
-      }
-      if (channelName.includes('kids') || channelName.includes('cartoon') || channelName.includes('nick') || channelName.includes('disney')) {
-        return 'Kids';
-      }
-      if (channelName.includes('music') || channelName.includes('mtv') || channelName.includes('radio') || channelName.includes('classic fm')) {
-        return 'Music';
-      }
-      if (channelName.includes('sport') || channelName.includes('sky sports') || channelName.includes('espn') || channelName.includes('motorsport')) {
-        return 'Sports';
-      }
-      return 'Other';
+// Build categories map
+function groupChannelsByCategory(channels) {
+  const categories = {};
+  channels.forEach(ch => {
+    const cat = ch.group || 'Ungrouped';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(ch);
+  });
+  return categories;
+}
+
+// Render category submenu
+function renderCategoryMenu(categories) {
+  categoryList.innerHTML = '';
+  // Add "All Channels" option first
+  const allItem = document.createElement('div');
+  allItem.textContent = 'All Channels';
+  allItem.classList.add('submenu-item', 'active');
+  allItem.onclick = () => {
+    setActiveCategory(null);
+  };
+  categoryList.appendChild(allItem);
+
+  for (const cat in categories) {
+    const div = document.createElement('div');
+    div.textContent = cat;
+    div.classList.add('submenu-item');
+    div.onclick = () => {
+      setActiveCategory(cat);
+    };
+    categoryList.appendChild(div);
+  }
+}
+
+// Track active category and channel
+let activeCategory = null;
+let activeChannel = null;
+
+// Set active category and render channels accordingly
+function setActiveCategory(category) {
+  activeCategory = category;
+
+  // Update active style in submenu
+  [...categoryList.children].forEach(item => {
+    if ((category === null && item.textContent === 'All Channels') || item.textContent === category) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
     }
+  });
 
-    // Build the category submenu
-    function buildCategoryMenu() {
-      const submenu = document.getElementById('tvGuideSubmenu');
-      submenu.innerHTML = '';
+  renderChannelList();
+  epgTableBody.innerHTML = '';
+  clearVideo();
+}
 
-      const categories = ['All Channels', 'Entertainment', 'Kids', 'Music', 'Sports', 'Other'];
+// Render the list of channels (as clickable channel names)
+function renderChannelList() {
+  // We will replace the epgTable header row's first column to "Channel"
+  const table = document.getElementById('epgTable');
+  const theadRow = table.querySelector('thead tr');
+  theadRow.innerHTML = '<th>Channel</th><th>Time</th><th>Program</th>';
 
-      categories.forEach(cat => {
-        const div = document.createElement('div');
-        div.textContent = cat;
-        div.className = 'submenu-item';
-        if (cat === currentCategory) div.classList.add('active');
-        div.onclick = () => {
-          currentCategory = cat;
-          filterChannels();
-          updateCategoryActive();
-        };
-        submenu.appendChild(div);
-      });
+  epgTableBody.innerHTML = '';
 
-      submenu.style.display = 'flex'; // show submenu by default
-    }
+  // Decide which channels to show
+  let showChannels;
+  if (activeCategory === null) {
+    showChannels = channels;
+  } else {
+    showChannels = sidebarCategories[activeCategory] || [];
+  }
 
-    function updateCategoryActive() {
-      const items = document.querySelectorAll('.submenu-item');
-      items.forEach(item => {
-        if (item.textContent === currentCategory) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
-        }
-      });
-    }
+  // For each channel, show channel name clickable and first program
+  showChannels.forEach(ch => {
+    const tr = document.createElement('tr');
 
-    function filterChannels() {
-      let filtered;
-      if (currentCategory === 'All Channels') {
-        filtered = allChannels;
-      } else {
-        filtered = allChannels.filter(ch => ch.category === currentCategory);
-      }
-      buildChannelList(filtered);
-    }
+    const tdName = document.createElement('td');
+    tdName.textContent = ch.name;
+    tdName.classList.add('channel-name');
+    tdName.onclick = () => selectChannel(ch);
+    tr.appendChild(tdName);
 
-    async function fetchAndParseM3U() {
-      try {
-        const response = await fetch(corsProxy);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        const m3uText = data.contents;
-        allChannels = parseM3U(m3uText);
-        buildCategoryMenu();
-        filterChannels();
-      } catch (error) {
-        console.error('Failed to load channels:', error);
-        alert('Failed to load channels: ' + error.message);
-      }
-    }
+    // Show current or next program from EPG if available
+    const programs = (ch.tvgId && epgData[ch.tvgId]) || [];
+    let now = new Date();
+    let currentProgram = programs.find(p => p.start <= now);
+    if (!currentProgram) currentProgram = programs[0] || {start: null, title: 'No program info'};
 
-    function parseM3U(m3uText) {
-      const lines = m3uText.split('\n');
-      const channels = [];
-      let currentChannel = null;
+    const tdTime = document.createElement('td');
+    tdTime.textContent = currentProgram.start ? currentProgram.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
+    tr.appendChild(tdTime);
 
-      for (let line of lines) {
-        line = line.trim();
-        if (line.startsWith('#EXTINF')) {
-          const nameMatch = line.match(/,(.*)$/);
-          const tvgIdMatch = line.match(/tvg-id="([^"]+)"/);
-          const tvgNameMatch = line.match(/tvg-name="([^"]+)"/);
-          const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+    const tdProgram = document.createElement('td');
+    tdProgram.textContent = currentProgram.title || 'No program info';
+    tr.appendChild(tdProgram);
 
-          const channelName = tvgNameMatch ? tvgNameMatch[1] : (nameMatch ? nameMatch[1] : 'Unknown');
-          currentChannel = {
-            id: tvgIdMatch ? tvgIdMatch[1] : null,
-            name: channelName,
-            logo: logoMatch ? logoMatch[1] : null,
-            url: '',
-            category: getCategory(channelName),
-          };
-        } else if (line && !line.startsWith('#') && currentChannel) {
-          currentChannel.url = line;
-          channels.push(currentChannel);
-          currentChannel = null;
-        }
-      }
-      return channels;
-    }
+    epgTableBody.appendChild(tr);
+  });
+}
 
-    function buildChannelList(channels) {
-      const tbody = document.querySelector('.epg table tbody');
-      tbody.innerHTML = ''; // Clear old channels
+// Select a channel to play
+function selectChannel(channel) {
+  activeChannel = channel;
+  if (!channel.url) {
+    alert('Channel URL not found');
+    return;
+  }
+  videoPlayer.src = channel.url;
+  videoPlayer.play();
 
-      channels.forEach(channel => {
-        const tr = document.createElement('tr');
+  // Render full EPG for selected channel below video player
+  renderFullEPG(channel.tvgId);
+}
 
-        const tdName = document.createElement('td');
-        tdName.textContent = channel.name;
-        tdName.className = 'channel-name';
-        tdName.title = 'Click to watch ' + channel.name;
-        tdName.onclick = () => playChannel(channel.url);
+// Show full EPG for one channel
+function renderFullEPG(tvgId) {
+  if (!tvgId || !epgData[tvgId]) {
+    // Clear EPG table except headers
+    epgTableBody.innerHTML = '';
+    return;
+  }
+  epgTableBody.innerHTML = '';
+  // Table headers
+  const table = document.getElementById('epgTable');
+  const theadRow = table.querySelector('thead tr');
+  theadRow.innerHTML = '<th>Start Time</th><th>Program Title</th>';
 
-        const tdShow1 = document.createElement('td');
-        tdShow1.textContent = 'Program 1';
+  const now = new Date();
 
-        const tdShow2 = document.createElement('td');
-        tdShow2.textContent = 'Program 2';
+  epgData[tvgId].forEach(prog => {
+    const tr = document.createElement('tr');
+    const tdTime = document.createElement('td');
+    tdTime.textContent = prog.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    tr.appendChild(tdTime);
 
-        const tdShow3 = document.createElement('td');
-        tdShow3.textContent = 'Program 3';
+    const tdTitle = document.createElement('td');
+    tdTitle.textContent = prog.title;
+    tr.appendChild(tdTitle);
 
-        tr.appendChild(tdName);
-        tr.appendChild(tdShow1);
-        tr.appendChild(tdShow2);
-        tr.appendChild(tdShow3);
+    epgTableBody.appendChild(tr);
+  });
+}
 
-        tbody.appendChild(tr);
-      });
-    }
+// Clear video player and reset EPG
+function clearVideo() {
+  videoPlayer.pause();
+  videoPlayer.src = '';
+  // Reset table header
+  const table = document.getElementById('epgTable');
+  const theadRow = table.querySelector('thead tr');
+  theadRow.innerHTML = '<th>Channel</th><th>Time</th><th>Program</th>';
+  epgTableBody.innerHTML = '';
+}
 
-    function playChannel(url) {
-      const previewBox = document.querySelector('.preview-box');
-      previewBox.innerHTML = ''; // Clear previous preview
-      const video = document.createElement('video');
-      video.src = url;
-      video.controls = true;
-      video.autoplay = true;
-      video.style.width = '100%';
-      video.style.height = '100%';
-      video.setAttribute('playsinline', ''); // For mobile support
-      previewBox.appendChild(video);
-    }
+// Main initialization
+async function init() {
+  try {
+    // Load M3U playlist
+    const m3uText = await fetchCORS(M3U_URL);
+    channels = parseM3U(m3uText);
+    sidebarCategories = groupChannelsByCategory(channels);
+    renderCategoryMenu(sidebarCategories);
 
-    // Toggle submenu on "TV Guide" click
-    document.getElementById('tvGuideMenu').addEventListener('click', () => {
-      const submenu = document.getElementById('tvGuideSubmenu');
-      if (submenu.style.display === 'flex') {
-        submenu.style.display = 'none';
-        document.getElementById('tvGuideMenu').textContent = 'TV Guide ▶';
-      } else {
-        submenu.style.display = 'flex';
-        document.getElementById('tvGuideMenu').textContent = 'TV Guide ▼';
-      }
-    });
+    // Load EPG XMLTV
+    const epgXmlText = await fetchCORS(EPG_URL);
+    epgData = parseEPG(epgXmlText);
 
-    // Load channels on page load
-    fetchAndParseM3U();
-  </script>
+    // Show all channels by default
+    setActiveCategory(null);
+  } catch(e) {
+    alert('Failed to load channels: ' + e.message);
+    console.error(e);
+  }
+}
+
+init();
+</script>
+
 </body>
 </html>

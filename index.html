@@ -2,14 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SkyQ Layout Clone - Simple M3U Loader</title>
+  <title>SkyQ Layout Clone with M3U</title>
   <style>
     body {
-      margin: 0; font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: Arial, sans-serif;
       background: linear-gradient(to right, #00204a, #003c8f);
       color: white;
-      display: flex; height: 100vh;
+      display: flex;
+      height: 100vh;
     }
+
+    /* Sidebar */
     .sidebar {
       width: 200px;
       background: #001d3d;
@@ -18,6 +22,7 @@
       flex-direction: column;
       gap: 15px;
     }
+
     .menu-item {
       font-size: 16px;
       opacity: 0.7;
@@ -26,57 +31,103 @@
       border-left: 3px solid transparent;
       cursor: pointer;
     }
+
     .menu-item:hover,
     .menu-item.active {
       background-color: #0051a2;
       opacity: 1;
       border-left: 3px solid #00b4ff;
     }
+
+    /* Submenu dropdown */
+    select {
+      margin-top: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+      background: #002b70;
+      color: white;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    /* Main content */
     .main {
       flex: 1;
       padding: 20px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
     }
+
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+
     .logo {
       font-size: 24px;
       font-weight: bold;
       color: #00b4ff;
     }
+
     #time {
       font-size: 18px;
       margin-right: 10px;
     }
-    table {
+
+    .preview-box {
+      margin-top: 20px;
+      width: 300px;
+      height: 170px;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .epg {
+      margin-top: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .epg table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
     }
-    th, td {
+
+    .epg th,
+    .epg td {
       padding: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      white-space: nowrap;
     }
-    th {
-      background: rgba(255,255,255,0.1);
+
+    .epg th {
+      background: rgba(255, 255, 255, 0.1);
     }
-    td {
-      background: rgba(255,255,255,0.05);
+
+    .epg td {
+      background: rgba(255, 255, 255, 0.05);
       cursor: pointer;
     }
-    td:hover {
-      background: rgba(0,180,255,0.3);
+
+    .error {
+      margin-top: 20px;
+      color: #ff4c4c;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <div class="menu-item active" id="tvGuideBtn">TV Guide</div>
+    <div class="menu-item" id="tv-guide-btn">TV Guide</div>
+    <!-- Add more sidebar items here if you want -->
   </div>
 
   <div class="main">
@@ -85,19 +136,21 @@
       <div id="time">--:--</div>
     </div>
 
-    <table id="channelsTable">
-      <thead>
-        <tr><th>Channel Name</th><th>Click to Watch</th></tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="2">Loading channels...</td></tr>
-      </tbody>
-    </table>
+    <select id="category-select" style="display:none;">
+      <option value="all">All Channels</option>
+    </select>
+
+    <div class="preview-box" id="preview-box">Select a channel to watch</div>
+
+    <div class="epg" id="epg">
+      <!-- TV Guide Table will appear here -->
+    </div>
+
+    <div class="error" id="error"></div>
   </div>
 
   <script>
-    const pastebinUrl = 'https://pastebin.com/raw/VzBfHXLJ'; // raw URL for direct access
-    
+    // Update clock
     function updateTime() {
       const now = new Date();
       let hours = now.getHours();
@@ -107,70 +160,140 @@
       minutes = minutes < 10 ? '0' + minutes : minutes;
       document.getElementById('time').textContent = `${hours}:${minutes}${ampm}`;
     }
-    
-    async function loadChannels() {
-      const tbody = document.querySelector('#channelsTable tbody');
-      tbody.innerHTML = '<tr><td colspan="2">Loading channels...</td></tr>';
-      
-      try {
-        const response = await fetch(pastebinUrl);
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const m3uText = await response.text();
-        const channels = parseM3U(m3uText);
-        
-        if (channels.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="2">No channels found.</td></tr>';
-          return;
-        }
-        
-        tbody.innerHTML = '';
-        channels.forEach(channel => {
-          const tr = document.createElement('tr');
-          const nameTd = document.createElement('td');
-          nameTd.textContent = channel.name;
-          nameTd.title = channel.url;
-          nameTd.onclick = () => {
-            window.open(channel.url, '_blank');
-          };
-          const watchTd = document.createElement('td');
-          watchTd.textContent = 'Watch';
-          watchTd.style.textAlign = 'center';
-          watchTd.onclick = () => {
-            window.open(channel.url, '_blank');
-          };
-          
-          tr.appendChild(nameTd);
-          tr.appendChild(watchTd);
-          tbody.appendChild(tr);
-        });
-        
-      } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="2">Failed to load channels: ${error.message}</td></tr>`;
-      }
-    }
-    
-    function parseM3U(text) {
-      const lines = text.split('\n').map(line => line.trim());
-      const channels = [];
+    updateTime();
+    setInterval(updateTime, 10000);
+
+    const pastebinUrl = 'https://corsproxy.io/?https://pastebin.com/raw/VzBfHXLJ';
+
+    const epgDiv = document.getElementById('epg');
+    const previewBox = document.getElementById('preview-box');
+    const categorySelect = document.getElementById('category-select');
+    const errorDiv = document.getElementById('error');
+
+    let channels = [];
+    let groupedChannels = {};
+
+    // Helper: parse M3U content into channel objects
+    function parseM3U(data) {
+      const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let result = [];
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].startsWith('#EXTINF')) {
-          // Extract channel name from EXTINF line
-          const nameMatch = lines[i].match(/,(.*)$/);
+          // Extract group-title, tvg-name, etc
+          const infoLine = lines[i];
+          const urlLine = lines[i + 1] || '';
+          i++; // skip url line next iteration
+
+          const groupMatch = infoLine.match(/group-title="([^"]+)"/i);
+          const nameMatch = infoLine.match(/,(.+)$/);
+          const group = groupMatch ? groupMatch[1] : 'Other';
           const name = nameMatch ? nameMatch[1].trim() : 'Unknown';
-          const url = lines[i + 1] ? lines[i + 1].trim() : '';
-          if (url && !url.startsWith('#')) {
-            channels.push({name, url});
+          const url = urlLine.trim();
+
+          if (url) {
+            result.push({ name, group, url });
           }
-          i++; // skip next line since it's URL
         }
       }
-      return channels;
+      return result;
     }
-    
-    updateTime();
-    setInterval(updateTime, 60000);
-    loadChannels();
+
+    // Group channels by category (group-title)
+    function groupByCategory(channels) {
+      const grouped = {};
+      channels.forEach(ch => {
+        if (!grouped[ch.group]) {
+          grouped[ch.group] = [];
+        }
+        grouped[ch.group].push(ch);
+      });
+      return grouped;
+    }
+
+    // Render dropdown categories
+    function renderCategoryOptions(categories) {
+      categorySelect.innerHTML = '<option value="all">All Channels</option>';
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
+      categorySelect.style.display = 'block';
+    }
+
+    // Render channels in table style
+    function renderChannels(channelsToShow) {
+      if (!channelsToShow.length) {
+        epgDiv.innerHTML = '<p>No channels available in this category.</p>';
+        return;
+      }
+      let html = `<table>
+        <thead>
+          <tr><th>Channel</th><th>Watch</th></tr>
+        </thead><tbody>`;
+
+      channelsToShow.forEach(ch => {
+        html += `<tr>
+          <td class="channel-name" data-url="${ch.url}">${ch.name}</td>
+          <td><button onclick="watchChannel('${ch.url}')">Watch</button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      epgDiv.innerHTML = html;
+
+      // Remove Watch buttons if you want click-on-name to watch
+      // So let's do that now — remove buttons, and just click channel name to watch:
+      document.querySelectorAll('.channel-name').forEach(td => {
+        td.style.cursor = 'pointer';
+        td.onclick = () => watchChannel(td.getAttribute('data-url'));
+      });
+      // Remove buttons column since we don't want the button anymore
+      epgDiv.querySelectorAll('button').forEach(btn => btn.remove());
+    }
+
+    // Function to show preview (replace with real video if you want)
+    function watchChannel(url) {
+      previewBox.textContent = `Playing: ${url}`;
+      // You can embed a video player here if you want
+    }
+
+    // Initialize: fetch M3U, parse, group, render
+    async function init() {
+      try {
+        errorDiv.textContent = '';
+        const response = await fetch(pastebinUrl);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.text();
+        channels = parseM3U(data);
+        groupedChannels = groupByCategory(channels);
+        const categories = Object.keys(groupedChannels).sort();
+        renderCategoryOptions(categories);
+        renderChannels(channels);
+      } catch (err) {
+        errorDiv.textContent = 'Failed to load channels: ' + err.message;
+      }
+    }
+
+    // Filter channels on category change
+    categorySelect.addEventListener('change', () => {
+      const cat = categorySelect.value;
+      if (cat === 'all') {
+        renderChannels(channels);
+      } else {
+        renderChannels(groupedChannels[cat] || []);
+      }
+      previewBox.textContent = 'Select a channel to watch';
+    });
+
+    // Show categories when clicking TV Guide sidebar
+    document.getElementById('tv-guide-btn').addEventListener('click', () => {
+      categorySelect.style.display = 'block';
+      renderChannels(channels);
+      previewBox.textContent = 'Select a channel to watch';
+    });
+
+    init();
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SkyQ Layout Clone with IPTV Player</title>
+  <title>SkyQ Layout Clone with IPTV Player (with CORS Proxy)</title>
   <style>
     body {
       margin: 0;
@@ -162,7 +162,6 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <script>
-    // Update clock in top bar
     function updateTime() {
       const now = new Date();
       let hours = now.getHours();
@@ -175,34 +174,43 @@
     updateTime();
     setInterval(updateTime, 10000);
 
-    const pastebinUrl = 'PASTEBIN_RAW_URL'; // <-- Replace this with your raw Pastebin M3U URL
+    // Replace this with your Pastebin raw URL (keep quotes)
+    const pastebinRawUrl = 'PASTEBIN_RAW_URL';
+
+    // Proxy URL for CORS bypass
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
 
     async function fetchAndParseM3U() {
-      const res = await fetch(pastebinUrl);
-      if (!res.ok) {
-        alert('Failed to load playlist');
-        return [];
-      }
-      const text = await res.text();
+      try {
+        const res = await fetch(corsProxy + pastebinRawUrl);
+        if (!res.ok) {
+          alert('Failed to load playlist: ' + res.status);
+          return [];
+        }
+        const text = await res.text();
 
-      const lines = text.split('\n');
-      const channels = [];
-      let currentChannel = null;
+        const lines = text.split('\n');
+        const channels = [];
+        let currentChannel = null;
 
-      for (let line of lines) {
-        line = line.trim();
-        if (line.startsWith('#EXTINF')) {
-          const nameMatch = line.match(/,(.*)$/);
-          if (nameMatch) currentChannel = { name: nameMatch[1], url: '' };
-        } else if (line && !line.startsWith('#')) {
-          if (currentChannel) {
-            currentChannel.url = line;
-            channels.push(currentChannel);
-            currentChannel = null;
+        for (let line of lines) {
+          line = line.trim();
+          if (line.startsWith('#EXTINF')) {
+            const nameMatch = line.match(/,(.*)$/);
+            if (nameMatch) currentChannel = { name: nameMatch[1], url: '' };
+          } else if (line && !line.startsWith('#')) {
+            if (currentChannel) {
+              currentChannel.url = line;
+              channels.push(currentChannel);
+              currentChannel = null;
+            }
           }
         }
+        return channels;
+      } catch (e) {
+        alert('Error loading playlist: ' + e.message);
+        return [];
       }
-      return channels;
     }
 
     function buildChannelList(channels) {
